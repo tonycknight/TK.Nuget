@@ -1,0 +1,97 @@
+name: Build & Release
+
+
+on:
+  push:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  build-version-number: 0.1.${{ github.run_number }}  
+
+
+jobs:
+  sca:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "6.0.x"
+          
+      - name: dotnet tool restore
+        run: dotnet tool restore
+              
+      - name: Run SCA
+        run: dotnet fake run "build.fsx" -t "SCA"  
+      
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "6.0.x"
+        
+      - name: dotnet tool restore
+        run: dotnet tool restore
+              
+      - name: Run build
+        run: dotnet fake run "build.fsx" -t "Consolidate code coverage"
+
+      - name: Archive tool nupkg
+        uses: actions/upload-artifact@v3
+        with:
+          name: jwt-cli.nupkg
+          path: ./package/jwt*.nupkg
+
+  codeql:
+    uses: ./.github/workflows/codeql-analysis.yml
+  
+  nuget-release:
+    name: nuget release
+    runs-on: ubuntu-latest
+    needs:   [ sca, build, codeql ]
+    #if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "6.0.x"
+
+      - name: Download package
+        uses: actions/download-artifact@v3
+        with:
+          name: jwt-cli.nupkg
+          path: ${{ github.workspace }}/artifacts
+
+      - name: Push nuget package
+        run: dotnet nuget push "artifacts/*.nupkg"  --api-key ${{ secrets.NUGET_PAT }} --source "nuget.org"
+
+  gh-release:
+    name: gh release
+    runs-on: ubuntu-latest
+    needs: [ nuget-release ]    
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:    
+      - uses: actions/checkout@v3
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: v${{ env.build-version-number }}
+          prerelease: false
+          generateReleaseNotes: true
