@@ -44,7 +44,7 @@ jobs:
         run: dotnet tool restore
               
       - name: Run build
-        run: dotnet fake run "build.fsx" -t "Consolidate code coverage"
+        run: dotnet fake run "build.fsx" -t "All"
 
       - name: Archive tool nupkg
         uses: actions/upload-artifact@v3
