@@ -49,8 +49,8 @@ jobs:
       - name: Archive tool nupkg
         uses: actions/upload-artifact@v3
         with:
-          name: jwt-cli.nupkg
-          path: ./package/jwt*.nupkg
+          name: Tk.Nuget.nupkg
+          path: ./package/Tk.Nuget*.nupkg
 
   codeql:
     uses: ./.github/workflows/codeql-analysis.yml
@@ -73,7 +73,7 @@ jobs:
       - name: Download package
         uses: actions/download-artifact@v3
         with:
-          name: jwt-cli.nupkg
+          name: Tk.Nuget.nupkg
           path: ${{ github.workspace }}/artifacts
 
       - name: Push nuget package
