@@ -5,6 +5,21 @@ VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tk.Nuget", "src\Tk.Nuget\Tk.Nuget.csproj", "{9E1F3F18-7BAE-4B0B-894F-BD06E12DB911}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{711203ED-6E3A-4053-9CAA-DD44A34981AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{FC9C12CE-7468-46F4-8015-B9333410C80E}"
+	ProjectSection(SolutionItems) = preProject
+		build.fsx = build.fsx
+		build.ps1 = build.ps1
+		.github\workflows\build.yml = .github\workflows\build.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{B90A5D55-43AE-4523-8179-4DE4FE8E857E}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +33,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9E1F3F18-7BAE-4B0B-894F-BD06E12DB911} = {711203ED-6E3A-4053-9CAA-DD44A34981AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {488BD6A4-A0A9-4DFD-A188-54BFE52BF666}

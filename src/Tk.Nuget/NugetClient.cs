@@ -1,6 +1,7 @@
 ﻿using NuGet.Configuration;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
+using Tk.Extensions.Guards;
 
 namespace Tk.Nuget
 {
@@ -8,6 +9,8 @@ namespace Tk.Nuget
     {
         public async Task<string?> GetLatestNugetVersionAsync(string packageId, string? sourceUrl = null)
         {
+            packageId.ArgNotNull(nameof(packageId));
+
             try
             {
                 sourceUrl ??= NuGetConstants.V3FeedUrl;
