@@ -19,14 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup .NET Core SDK
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
           
       - name: dotnet tool restore
         run: dotnet tool restore
               
       - name: Run SCA
-        run: dotnet pkgchk --transitive 
+        run: dotnet pkgchk --transitive true --deprecated
       
   check-style:
     name: Check code style
@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup .NET Core SDK
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
                 
       - name: Restore tools
@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup .NET Core SDK
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
                 
       - name: Restore tools
