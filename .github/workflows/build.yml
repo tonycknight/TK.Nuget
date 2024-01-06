@@ -44,10 +44,13 @@ jobs:
       - name: Check style
         run: dotnet format --verify-no-changes
 
+  codeql:
+    uses: ./.github/workflows/codeql-analysis.yml
+    
   package:
     name: Build package and release
     runs-on: ubuntu-latest
-    needs: [ check-style ]
+    needs: [ check-style, sca, codeql ]
 
     steps:
       - uses: actions/checkout@v3
@@ -75,9 +78,6 @@ jobs:
         if: false
         run: dotnet nuget push "artifacts/*.nupkg"  --api-key ${{ secrets.NUGET_PAT }} --source "nuget.org"
 
-  codeql:
-    uses: ./.github/workflows/codeql-analysis.yml
-    
   gh-release:
     name: Github release
     runs-on: ubuntu-latest
