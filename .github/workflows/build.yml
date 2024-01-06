@@ -60,7 +60,7 @@ jobs:
         with:
           name: tests.results
           path: |
-            ./test/**/TestResults/*
+            ./tests/**/TestResults/*
       
       - name: Archive Code coverage
         uses: actions/upload-artifact@v3
@@ -73,14 +73,14 @@ jobs:
         if: always()
         with:
           name: unit test results
-          path: ${{ github.workspace }}/test/Tk.Toolkit.Cli.Tests.Unit/TestResults/test_results.trx
+          path: ${{ github.workspace }}/tests/Tk.Nuget.Tests.Unit/TestResults/test_results.trx
           reporter: dotnet-trx
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Code coverage results
         uses: 5monkeys/cobertura-action@master
         with:
-          path: ${{ github.workspace }}/test/Tk.Toolkit.Cli.Tests.Unit/TestResults/coverage.info
+          path: ${{ github.workspace }}/tests/Tk.Nuget.Tests.Unit/TestResults/coverage.info
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           minimum_coverage: 80
           fail_below_threshold: true
