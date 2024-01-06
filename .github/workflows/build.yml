@@ -35,6 +35,7 @@ jobs:
     uses: ./.github/workflows/codeql-analysis.yml
     
   tests:
+    name: Unit tests
     runs-on: ubuntu-latest
 
     steps:
