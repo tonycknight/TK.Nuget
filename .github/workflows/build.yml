@@ -34,10 +34,66 @@ jobs:
   codeql:
     uses: ./.github/workflows/codeql-analysis.yml
     
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.dotnet-version }}
+        
+      - name: dotnet tool restore
+        run: dotnet tool restore
+
+      - name: dotnet restore
+        run: dotnet restore
+              
+      - name: Run tests
+        run: dotnet test -c Debug --logger trx;LogFileName=test_results.trx /p:CollectCoverage=true /p:CoverletOutput=./TestResults/coverage.info /p:CoverletOutputFormat=lcov
+              
+      - name: Archive Test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests.results
+          path: |
+            ./test/**/TestResults/*
+      
+      - name: Archive Code coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: codecoverage
+          path: ./publish/codecoverage/*.*
+
+      - name: Unit test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: unit test results
+          path: ${{ github.workspace }}/test/Tk.Toolkit.Cli.Tests.Unit/TestResults/test_results.trx
+          reporter: dotnet-trx
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Code coverage results
+        uses: 5monkeys/cobertura-action@master
+        with:
+          path: ${{ github.workspace }}/test/Tk.Toolkit.Cli.Tests.Unit/TestResults/coverage.info
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          minimum_coverage: 80
+          fail_below_threshold: true
+          show_line: true
+          show_branch: true
+          show_missing: true
+          show_class_names: true
+          link_missing_lines: true
+          report_name: code coverage results       
+
   package:
     name: Build package and release
     runs-on: ubuntu-latest
-    needs: [ check-style, sca, codeql ]
+    needs: [ check-style, sca, codeql, tests ]
 
     steps:
       - uses: actions/checkout@v3
