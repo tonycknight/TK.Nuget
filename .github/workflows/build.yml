@@ -73,8 +73,7 @@ jobs:
         run: dotnet pack -c Release -o ./package/ -p:PackageVersion=${{ env.package-version-number }}
 
       - name: Push package to Nuget
-        # TODO: temporary if: github.event_name == 'push'
-        if: false
+        if: github.event_name == 'push'
         run: dotnet nuget push "artifacts/*.nupkg"  --api-key ${{ secrets.NUGET_PAT }} --source "nuget.org"
 
   gh-release:
