@@ -67,7 +67,6 @@ jobs:
       - name: Set package version
         if: github.ref != 'refs/heads/main' 
         run: |
-          echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
           echo "package-version-number=$${{ env.package-version-number }}-preview" >> $GITHUB_ENV
 
       - name: Package
