@@ -2,12 +2,6 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "fake-cli": {
-      "version": "6.0.0",
-      "commands": [
-        "fake"
-      ]
-    },
     "pkgchk-cli": {
       "version": "0.1.152",
       "commands": [
