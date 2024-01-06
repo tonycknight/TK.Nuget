@@ -7,6 +7,12 @@
       "commands": [
         "fake"
       ]
+    },
+    "pkgchk-cli": {
+      "version": "0.1.152",
+      "commands": [
+        "pkgchk"
+      ]
     }
   }
 }
