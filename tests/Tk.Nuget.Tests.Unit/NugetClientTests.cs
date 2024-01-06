@@ -8,7 +8,7 @@ namespace Tk.Nuget.Tests.Unit
         public void GetLatestNugetVersionAsync_NullPackageId_ExceptionThrown()
         {
             var c = new NugetClient();
-            
+
             var func = () => c.GetLatestNugetVersionAsync(null!, false, null);
 
             func.Should().ThrowAsync<ArgumentNullException>();
