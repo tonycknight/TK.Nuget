@@ -67,7 +67,7 @@ jobs:
       - name: Set package version
         if: github.ref != 'refs/heads/main' 
         run: |
-          echo "package-version-number=$${{ env.package-version-number }}-preview" >> $GITHUB_ENV
+          echo "package-version-number=${{ env.package-version-number }}-preview" >> $GITHUB_ENV
 
       - name: Package
         run: dotnet pack -c Release -o ./package/ -p:PackageVersion=${{ env.package-version-number }}
