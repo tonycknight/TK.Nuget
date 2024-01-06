@@ -13,20 +13,7 @@ env:
 
 jobs:
   sca:
-    name: SCA
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-          
-      - name: dotnet tool restore
-        run: dotnet tool restore
-              
-      - name: Run SCA
-        run: dotnet pkgchk --transitive true --deprecated
+    uses: ./.github/workflows/sca-scheduled.yml
       
   check-style:
     name: Check code style
