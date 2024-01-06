@@ -1,0 +1,32 @@
+name: "Scheduled SCA"
+
+on:
+  workflow_dispatch:  
+  workflow_call:
+    inputs:
+      username:
+        required: false
+        type: string
+    secrets:
+      token:
+        required: false
+  schedule:
+    - cron: '16 2 * * 4'
+
+jobs:
+  analyze:
+    name: SCA
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3      
+        
+    - name: dotnet tool restore
+      run: dotnet tool restore
+
+    - name: Run SCA
+      run: dotnet pkgchk --transitive true --deprecated

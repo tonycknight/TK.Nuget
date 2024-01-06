@@ -2,6 +2,6 @@
 {
     public interface INugetClient
     {
-        Task<string?> GetLatestNugetVersionAsync(string packageId, string? sourceUrl = null);
+        Task<string?> GetLatestNugetVersionAsync(string packageId, bool includePrerelease = false, string? sourceUrl = null);
     }
 }

@@ -1,15 +1,16 @@
 ﻿using NuGet.Configuration;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
-using Tk.Extensions.Guards;
 
 namespace Tk.Nuget
 {
     public class NugetClient : INugetClient
     {
-        public async Task<string?> GetLatestNugetVersionAsync(string packageId, string? sourceUrl = null)
+        public async Task<string?> GetLatestNugetVersionAsync(string packageId, bool includePrerelease = false, string? sourceUrl = null)
         {
-            packageId.ArgNotNull(nameof(packageId));
+            if (packageId == null) throw new ArgumentNullException(nameof(packageId));
+            if (string.IsNullOrWhiteSpace(packageId)) throw new ArgumentException(nameof(packageId));
+
 
             try
             {
@@ -20,7 +21,7 @@ namespace Tk.Nuget
 
                 using var cache = new SourceCacheContext();
 
-                var vsn = await mdr.GetLatestVersion(packageId, true, false, cache, logger, CancellationToken.None);
+                var vsn = await mdr.GetLatestVersion(packageId, includePrerelease, false, cache, logger, CancellationToken.None);
 
                 return vsn?.ToString();
             }

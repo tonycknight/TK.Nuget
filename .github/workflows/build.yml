@@ -8,81 +8,65 @@ on:
   workflow_dispatch:
 
 env:
-  build-version-number: 0.1.${{ github.run_number }}  
-
+  build-version-number: 0.1.${{ github.run_number }}
+  package-version-number: 0.1.${{ github.run_number }}
 
 jobs:
   sca:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: "6.0.x"
-          
-      - name: dotnet tool restore
-        run: dotnet tool restore
-              
-      - name: Run SCA
-        run: dotnet fake run "build.fsx" -t "SCA"  
+    uses: ./.github/workflows/sca-scheduled.yml
       
-  build:
+  check-style:
+    name: Check code style
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup .NET Core SDK
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: "6.0.x"
-        
-      - name: dotnet tool restore
+                
+      - name: Restore tools
         run: dotnet tool restore
-              
-      - name: Run build
-        run: dotnet fake run "build.fsx" -t "All"
 
-      - name: Archive tool nupkg
-        uses: actions/upload-artifact@v3
-        with:
-          name: Tk.Nuget.nupkg
-          path: ./package/Tk.Nuget*.nupkg
+      - name: Check style
+        run: dotnet format --verify-no-changes
 
   codeql:
     uses: ./.github/workflows/codeql-analysis.yml
-  
-  nuget-release:
-    name: nuget release
+    
+  package:
+    name: Build package and release
     runs-on: ubuntu-latest
-    needs:   [ sca, build, codeql ]
-    #if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
-    if: github.event_name == 'push'
+    needs: [ check-style, sca, codeql ]
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup .NET Core SDK
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: "6.0.x"
+                
+      - name: Restore tools
+        run: dotnet tool restore
+              
+      - name: Restore solutiom
+        run: dotnet restore
 
-      - name: Download package
-        uses: actions/download-artifact@v3
-        with:
-          name: Tk.Nuget.nupkg
-          path: ${{ github.workspace }}/artifacts
+      - name: Set package version
+        if: github.ref != 'refs/heads/main' 
+        run: |
+          echo "package-version-number=${{ env.package-version-number }}-preview" >> $GITHUB_ENV
 
-      - name: Push nuget package
-        run: dotnet nuget push "artifacts/*.nupkg"  --api-key ${{ secrets.NUGET_PAT }} --source "nuget.org"
+      - name: Package
+        run: dotnet pack -c Release -o ./package/ -p:PackageVersion=${{ env.package-version-number }}
+
+      - name: Push package to Nuget
+        if: github.event_name == 'push'
+        run: dotnet nuget push "package/*.nupkg"  --api-key ${{ secrets.NUGET_PAT }} --source "nuget.org"
 
   gh-release:
-    name: gh release
+    name: Github release
     runs-on: ubuntu-latest
-    needs: [ nuget-release ]    
+    needs: [ package ]    
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:    

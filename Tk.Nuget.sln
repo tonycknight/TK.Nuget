@@ -3,14 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tk.Nuget", "src\Tk.Nuget\Tk.Nuget.csproj", "{9E1F3F18-7BAE-4B0B-894F-BD06E12DB911}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tk.Nuget", "src\Tk.Nuget\Tk.Nuget.csproj", "{9E1F3F18-7BAE-4B0B-894F-BD06E12DB911}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{711203ED-6E3A-4053-9CAA-DD44A34981AF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{FC9C12CE-7468-46F4-8015-B9333410C80E}"
 	ProjectSection(SolutionItems) = preProject
-		build.fsx = build.fsx
-		build.ps1 = build.ps1
 		.github\workflows\build.yml = .github\workflows\build.yml
 	EndProjectSection
 EndProject
