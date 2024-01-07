@@ -11,7 +11,7 @@ namespace Tk.Nuget
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
-            
+
             try
             {
                 sourceUrl ??= NuGetConstants.V3FeedUrl;
@@ -35,14 +35,14 @@ namespace Tk.Nuget
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
-                        
+
             var latestVersion = await this.GetLatestNugetVersionAsync(packageId, includePrerelease, sourceUrl);
 
             if (latestVersion == null) return null;
 
             var latestVsn = SemVersion.Parse(latestVersion, SemVersionStyles.Any);
             var testVsn = SemVersion.Parse(currentVersion, SemVersionStyles.Any);
-                        
+
             if (latestVsn.ComparePrecedenceTo(testVsn) > 0)
             {
                 return latestVersion;

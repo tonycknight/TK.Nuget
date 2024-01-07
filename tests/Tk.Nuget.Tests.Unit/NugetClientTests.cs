@@ -70,7 +70,7 @@ namespace Tk.Nuget.Tests.Unit
 
             var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false, null);
 
-            if(upgradeExpected)
+            if (upgradeExpected)
             {
                 vsn.Should().NotBeNull();
             }
