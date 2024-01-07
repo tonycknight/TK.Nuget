@@ -85,7 +85,7 @@ jobs:
         with:
           path: ${{ github.workspace }}/tests/Tk.Nuget.Tests.Unit/TestResults/coverage.info
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          minimum_coverage: 10
+          minimum_coverage: 80
           fail_below_threshold: true
           show_line: true
           show_branch: true
