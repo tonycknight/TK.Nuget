@@ -1,5 +1,8 @@
 ﻿namespace Tk.Nuget
 {
+    /// <summary>
+    /// A procedural abstraction over Nuget.
+    /// </summary>
     public interface INugetClient
     {
         /// <summary>
