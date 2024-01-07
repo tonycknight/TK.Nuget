@@ -1,6 +1,7 @@
 ﻿using NuGet.Configuration;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
+using Semver;
 
 namespace Tk.Nuget
 {
@@ -8,9 +9,8 @@ namespace Tk.Nuget
     {
         public async Task<string?> GetLatestNugetVersionAsync(string packageId, bool includePrerelease = false, string? sourceUrl = null)
         {
-            if (packageId == null) throw new ArgumentNullException(nameof(packageId));
-            if (string.IsNullOrWhiteSpace(packageId)) throw new ArgumentException(nameof(packageId));
-
+            packageId.ArgNotNull(nameof(packageId));
+            packageId.ArgNotEmpty(nameof(packageId));
 
             try
             {
@@ -29,6 +29,25 @@ namespace Tk.Nuget
             {
                 return null;
             }
+        }
+
+        public async Task<string?> GetUpgradeVersionAsync(string packageId, string currentVersion, bool includePrerelease = false, string? sourceUrl = null)
+        {
+            packageId.ArgNotNull(nameof(packageId));
+            packageId.ArgNotEmpty(nameof(packageId));
+
+            var latestVersion = await this.GetLatestNugetVersionAsync(packageId, includePrerelease, sourceUrl);
+
+            if (latestVersion == null) return null;
+
+            var latestVsn = SemVersion.Parse(latestVersion, SemVersionStyles.Any);
+            var testVsn = SemVersion.Parse(currentVersion, SemVersionStyles.Any);
+
+            if (latestVsn.ComparePrecedenceTo(testVsn) > 0)
+            {
+                return latestVersion;
+            }
+            return null;
         }
     }
 }

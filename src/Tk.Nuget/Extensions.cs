@@ -1,10 +1,27 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Tk.Nuget
 {
-    public static class Extensions
+    internal static class Extensions
     {
-        public static IServiceCollection AddNugetClient(this IServiceCollection collection)
-            => collection.AddSingleton<INugetClient, NugetClient>();
+        [ExcludeFromCodeCoverage]
+        public static T ArgNotNull<T>(this T value, string paramName) where T : class
+        {
+            if (ReferenceEquals(null, value))
+            {
+                throw new ArgumentNullException(paramName: paramName);
+            }
+            return value;
+        }
+
+        [ExcludeFromCodeCoverage]
+        public static string ArgNotEmpty(this string value, string paramName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException(paramName);
+            }
+            return value;
+        }
     }
 }
