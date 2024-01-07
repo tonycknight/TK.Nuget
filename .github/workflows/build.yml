@@ -54,7 +54,10 @@ jobs:
               
       - name: Run tests
         run: dotnet test -c Debug --logger:"trx;LogFileName=test_results.trx" /p:CollectCoverage=true /p:CoverletOutput=./TestResults/coverage.info /p:CoverletOutputFormat=cobertura
-              
+
+      - name: Consolidate code coverage
+        run: dotnet reportgenerator -reports:./tests/**/coverage.info -targetdir:./publish/codecoverage -reporttypes:html
+      
       - name: Archive Test results
         uses: actions/upload-artifact@v3
         with:
