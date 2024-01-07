@@ -16,15 +16,15 @@ using Tk.Nuget;
 // where collection is of type IServiceCollection
 
 collection.AddNugetClient();
-
 ```
 
 To get the latest version of a package:
 
 ```csharp
 var packageId = "My.Test.Library";
-// client is of type Tk.Nuget.INugetClient
 
+// client is of type Tk.Nuget.INugetClient
+// Returns a non-null version if successful, null if not.
 var vsn = client.GetLatestNugetVersionAsync(packageId);
 ```
 
@@ -33,7 +33,10 @@ To see if the current version has an upgrade:
 ```csharp
 var packageId = "My.Test.Library";
 var currentVersion = "0.0.1";
-// client is of type Tk.Nuget.INugetClient
 
+// client is of type Tk.Nuget.INugetClient
 var vsn = clientGetUpgradeVersionAsync(packageId, currentVersion);
+
+// If vsn is non-null, an upgrade version is available. 
+// If vsn is null, there is no available version.
 ```
