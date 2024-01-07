@@ -27,3 +27,13 @@ var packageId = "My.Test.Library";
 
 var vsn = client.GetLatestNugetVersionAsync(packageId);
 ```
+
+To see if the current version has an upgrade:
+
+```csharp
+var packageId = "My.Test.Library";
+var currentVersion = "0.0.1";
+// client is of type Tk.Nuget.INugetClient
+
+var vsn = clientGetUpgradeVersionAsync(packageId, currentVersion);
+```

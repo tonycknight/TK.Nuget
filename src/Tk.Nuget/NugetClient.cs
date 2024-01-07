@@ -7,6 +7,7 @@ namespace Tk.Nuget
 {
     public class NugetClient : INugetClient
     {
+        /// <inheritdoc/>
         public async Task<string?> GetLatestNugetVersionAsync(string packageId, bool includePrerelease = false, string? sourceUrl = null)
         {
             packageId.ArgNotNull(nameof(packageId));
@@ -31,6 +32,7 @@ namespace Tk.Nuget
             }
         }
 
+        /// <inheritdoc/>
         public async Task<string?> GetUpgradeVersionAsync(string packageId, string currentVersion, bool includePrerelease = false, string? sourceUrl = null)
         {
             packageId.ArgNotNull(nameof(packageId));
