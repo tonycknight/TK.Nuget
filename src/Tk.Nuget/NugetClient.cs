@@ -1,6 +1,7 @@
 ﻿using NuGet.Configuration;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
+using Semver;
 
 namespace Tk.Nuget
 {
@@ -39,10 +40,10 @@ namespace Tk.Nuget
 
             if (latestVersion == null) return null;
 
-            var latestVsn = Version.Parse(latestVersion);
-            var currentVsn = Version.Parse(currentVersion.NormaliseVersion());
+            var latestVsn = SemVersion.Parse(latestVersion, SemVersionStyles.Any);
+            var testVsn = SemVersion.Parse(currentVersion, SemVersionStyles.Any);
                         
-            if (latestVsn > currentVsn)
+            if (latestVsn.ComparePrecedenceTo(testVsn) > 0)
             {
                 return latestVersion;
             }

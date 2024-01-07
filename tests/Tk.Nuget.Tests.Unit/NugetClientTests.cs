@@ -51,22 +51,26 @@ namespace Tk.Nuget.Tests.Unit
             vsn.Should().BeNull();
         }
 
+        // We assume Newtonsoft.Json has a latest version of 13.0.3
+        // This will change at some point, giving brittle tests!
+        // However, the rate of upticks on Newtonsoft.Json is low at this time.
         [Theory]
         [InlineData("Newtonsoft.Json", "0.0.0", true)]
+        [InlineData("Newtonsoft.Json", "13.0.2+sha256", true)]
+        [InlineData("Newtonsoft.Json", "13.0.3", false)]
+        [InlineData("Newtonsoft.Json", "13.0.3+sha256", false)]
+        [InlineData("Newtonsoft.Json", "13.0.4+sha256", false)]
+        [InlineData("Newtonsoft.Json", "13.0.4-preview", false)]
         [InlineData("Newtonsoft.Json", "999.0.0", false)]
         [InlineData("Newtonsoft.Json", "999.0.0-preview", false)]
         [InlineData("Newtonsoft.Json", "999.0.0+sha256", false)]
-        [InlineData("Microsoft.Extensions.DependencyInjection", "0.0.0", true)]
-        [InlineData("Microsoft.Extensions.DependencyInjection", "999.0.0", false)]
-        [InlineData("Microsoft.Extensions.DependencyInjection", "999.0.0-preview", false)]
-        [InlineData("Microsoft.Extensions.DependencyInjection", "999.0.0+sha", false)]
-        public async Task GetUpgradeVersionAsync__VersionReturned(string id, string currentVsn, bool vsnExpected)
+        public async Task GetUpgradeVersionAsync__VersionReturned(string id, string currentVsn, bool upgradeExpected)
         {
             var c = new NugetClient();
 
             var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false, null);
 
-            if(vsnExpected)
+            if(upgradeExpected)
             {
                 vsn.Should().NotBeNull();
             }
