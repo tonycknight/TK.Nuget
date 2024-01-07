@@ -25,5 +25,31 @@ namespace Tk.Nuget.Tests.Unit
 
             func.Should().ThrowAsync<ArgumentNullException>();
         }
+
+        [Theory]
+        [InlineData("Newtonsoft.Json")]
+        [InlineData("Microsoft.Extensions.DependencyInjection")]
+        public async Task GetLatestNugetVersionAsync_KnownPackage_VersionReturned(string id)
+        {
+            var c = new NugetClient();
+
+            var vsn = await c.GetLatestNugetVersionAsync(id, false, null);
+
+            // We've no control over version numbers, so we'll just assert that a version string is returned.
+
+            var v = Version.Parse(vsn);
+            v.ToString().Should().Be(vsn);
+        }
+
+        [Fact]
+        public async Task GetLatestNugetVersionAsync_UnknownPackage_NoVersionReturned()
+        {
+            var id = Guid.NewGuid().ToString();
+            var c = new NugetClient();
+
+            var vsn = await c.GetLatestNugetVersionAsync(id, false, null);
+
+            vsn.Should().BeNull();
+        }
     }
 }
