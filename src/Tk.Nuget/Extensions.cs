@@ -23,17 +23,5 @@ namespace Tk.Nuget
             }
             return value;
         }
-
-        public static string NormaliseVersion(this string version)
-        {
-            version = version.Trim();
-            var shaIdx = version.IndexOf('+');
-            if (shaIdx >= 0)
-            {
-                return version.Substring(0, shaIdx);
-            }
-
-            return version;
-        }
     }
 }
