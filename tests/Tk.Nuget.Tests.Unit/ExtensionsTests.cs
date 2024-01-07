@@ -1,20 +1,19 @@
 ﻿using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Tk.Nuget.Tests.Unit
 {
     public class ExtensionsTests
     {
-        [Fact]
-        public void AddNugetClient_InjectionMade()
+        [Theory]
+        [InlineData(" ", "")]
+        [InlineData("1.2.3", "1.2.3")]
+        [InlineData("1.2.3-preview", "1.2.3-preview")]
+        [InlineData("1.2.3+sha256value", "1.2.3")]
+        public void NormaliseVersion_VersionsMapped(string vsn, string expected)
         {
-            var col = new ServiceCollection();
+            var r = vsn.NormaliseVersion();
 
-            var col2 = col.AddNugetClient();
-
-            var xs = col2.Where(sd => sd.ServiceType == typeof(INugetClient));
-
-            xs.Should().NotBeEmpty();
+            r.Should().Be(expected);
         }
     }
 }

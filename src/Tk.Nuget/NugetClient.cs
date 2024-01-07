@@ -8,10 +8,9 @@ namespace Tk.Nuget
     {
         public async Task<string?> GetLatestNugetVersionAsync(string packageId, bool includePrerelease = false, string? sourceUrl = null)
         {
-            if (packageId == null) throw new ArgumentNullException(nameof(packageId));
-            if (string.IsNullOrWhiteSpace(packageId)) throw new ArgumentException(nameof(packageId));
-
-
+            packageId.ArgNotNull(nameof(packageId));
+            packageId.ArgNotEmpty(nameof(packageId));
+            
             try
             {
                 sourceUrl ??= NuGetConstants.V3FeedUrl;
@@ -29,6 +28,25 @@ namespace Tk.Nuget
             {
                 return null;
             }
+        }
+
+        public async Task<string?> GetUpgradeVersionAsync(string packageId, string currentVersion, bool includePrerelease = false, string? sourceUrl = null)
+        {
+            packageId.ArgNotNull(nameof(packageId));
+            packageId.ArgNotEmpty(nameof(packageId));
+                        
+            var latestVersion = await this.GetLatestNugetVersionAsync(packageId, includePrerelease, sourceUrl);
+
+            if (latestVersion == null) return null;
+
+            var latestVsn = Version.Parse(latestVersion);
+            var currentVsn = Version.Parse(currentVersion.NormaliseVersion());
+                        
+            if (latestVsn > currentVsn)
+            {
+                return latestVersion;
+            }
+            return null;
         }
     }
 }
