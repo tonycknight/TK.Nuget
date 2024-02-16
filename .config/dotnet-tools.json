@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "pkgchk-cli": {
-      "version": "0.1.152",
+      "version": "0.2.343",
       "commands": [
         "pkgchk"
       ]
