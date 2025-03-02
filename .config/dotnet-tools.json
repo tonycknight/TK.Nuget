@@ -2,13 +2,6 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "pkgchk-cli": {
-      "version": "0.3.402",
-      "commands": [
-        "pkgchk"
-      ],
-      "rollForward": false
-    },
     "dotnet-reportgenerator-globaltool": {
       "version": "5.4.4",
       "commands": [

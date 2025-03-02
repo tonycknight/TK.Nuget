@@ -22,11 +22,5 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4      
-        
-    - name: dotnet tool restore
-      run: dotnet tool restore
-
     - name: Run SCA
-      run: dotnet pkgchk --transitive true --deprecated
+      uses: tonycknight/pkgchk-action@v1.0.16
