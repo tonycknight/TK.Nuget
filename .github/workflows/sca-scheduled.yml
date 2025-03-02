@@ -24,3 +24,7 @@ jobs:
 
     - name: Run SCA
       uses: tonycknight/pkgchk-action@v1.0.16
+      with:
+         deprecated: true
+         vulnerable:  true
+         transitives: true
