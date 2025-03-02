@@ -25,10 +25,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="NuGet.Protocol" Version="6.11.0" />
-    <PackageReference Include="Semver" Version="2.3.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
-    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+    <PackageReference Include="NuGet.Protocol" Version="6.13.1" />
+    <PackageReference Include="Semver" Version="2.3.0" />    
   </ItemGroup>
 
 </Project>
