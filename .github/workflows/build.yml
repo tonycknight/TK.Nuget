@@ -33,6 +33,27 @@ jobs:
 
   codeql:
     uses: ./.github/workflows/codeql-analysis.yml
+
+  mutation-testing:
+    name: Mutation testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.dotnet-version }}
+        
+      - name: dotnet tool restore
+        run: dotnet tool restore    
+
+      - name: Run Stryker
+        run: dotnet dotnet-stryler -r Html -r Markdown
+
+      - name: Mutation report
+        run: cat ./StrykerOutput/**/*.md >> $GITHUB_STEP_SUMMARY
     
   tests:
     name: Unit tests
