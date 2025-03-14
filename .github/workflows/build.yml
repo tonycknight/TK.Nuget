@@ -50,7 +50,7 @@ jobs:
         run: dotnet tool restore    
 
       - name: Run Stryker
-        run: dotnet dotnet-stryler -r Html -r Markdown
+        run: dotnet dotnet-stryker -r Html -r Markdown
 
       - name: Mutation report
         run: cat ./StrykerOutput/**/*.md >> $GITHUB_STEP_SUMMARY
