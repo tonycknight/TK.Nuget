@@ -50,10 +50,10 @@ jobs:
         run: dotnet tool restore    
 
       - name: Run Stryker
-        run: dotnet dotnet-stryker -r Html -r Markdown
+        run: dotnet dotnet-stryker -r Html -r Markdown -O ./strykeroutput/
 
       - name: Mutation report
-        run: cat ./StrykerOutput/**/*.md >> $GITHUB_STEP_SUMMARY
+        run: cat ./strykeroutput/reports/mutation-report.md >> $GITHUB_STEP_SUMMARY
     
   tests:
     name: Unit tests
