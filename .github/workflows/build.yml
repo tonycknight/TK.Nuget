@@ -1,6 +1,12 @@
 name: Build & Release
 
-
+permissions: # set permissions to principle of least privilege, codeql requires read permission to the repo content and PRs (if that option is set), and must have write permissions to security events in order to push results
+  actions: read
+  pull-requests: write
+  security-events: write
+  contents: write
+  checks: write
+  
 on:
   push:
   pull_request:
@@ -141,7 +147,7 @@ jobs:
         run: dotnet pack -c Release -o ./package/ -p:PackageVersion=${{ env.package-version-number }}
 
       - name: Push package to Nuget
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.actor != 'dependabot[bot]'
         run: dotnet nuget push "package/*.nupkg"  --api-key ${{ secrets.NUGET_PAT }} --source "nuget.org"
 
   gh-release:
