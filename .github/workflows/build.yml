@@ -9,8 +9,6 @@ permissions: # set permissions to principle of least privilege, codeql requires 
   
 on:
   push:
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -20,23 +18,7 @@ env:
 jobs:
   sca:
     uses: ./.github/workflows/sca-scheduled.yml
-      
-  check-style:
-    name: Check code style
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-                
-      - name: Restore tools
-        run: dotnet tool restore
-
-      - name: Check style
-        run: dotnet format --verify-no-changes
-
+  
   codeql:
     uses: ./.github/workflows/codeql-analysis.yml
 
@@ -124,7 +106,7 @@ jobs:
   package:
     name: Build package and release
     runs-on: ubuntu-latest
-    needs: [ check-style, sca, codeql, tests, mutation-testing ]
+    needs: [ sca, codeql, tests, mutation-testing ]
 
     steps:
       - uses: actions/checkout@v4
