@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Tk.Nuget.Tests.Unit
@@ -14,7 +14,7 @@ namespace Tk.Nuget.Tests.Unit
 
             var xs = col2.Where(sd => sd.ServiceType == typeof(INugetClient));
 
-            xs.Should().NotBeEmpty();
+            xs.ShouldNotBeEmpty();
         }
     }
 }

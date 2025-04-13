@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 
 namespace Tk.Nuget.Tests.Unit
 {
@@ -11,7 +11,7 @@ namespace Tk.Nuget.Tests.Unit
 
             var func = () => c.GetLatestNugetVersionAsync(null!, false, null);
 
-            func.Should().ThrowAsync<ArgumentNullException>();
+            func.ShouldThrowAsync<ArgumentNullException>();
         }
 
         [Theory]
@@ -23,7 +23,7 @@ namespace Tk.Nuget.Tests.Unit
 
             var func = () => c.GetLatestNugetVersionAsync(id, false, null);
 
-            func.Should().ThrowAsync<ArgumentNullException>();
+            func.ShouldThrowAsync<ArgumentNullException>();
         }
 
         [Theory]
@@ -37,7 +37,7 @@ namespace Tk.Nuget.Tests.Unit
 
             // We've no control over version numbers, so we'll just assert that a version string is returned.
             var v = Version.Parse(vsn!);
-            v.ToString().Should().Be(vsn);
+            v.ToString().ShouldBe(vsn);
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace Tk.Nuget.Tests.Unit
 
             var vsn = await c.GetLatestNugetVersionAsync(id, false, null);
 
-            vsn.Should().BeNull();
+            vsn.ShouldBeNull();
         }
 
         // We assume Newtonsoft.Json has a latest version of 13.0.3
@@ -72,11 +72,11 @@ namespace Tk.Nuget.Tests.Unit
 
             if (upgradeExpected)
             {
-                vsn.Should().NotBeNull();
+                vsn.ShouldNotBeNull();
             }
             else
             {
-                vsn.Should().BeNull();
+                vsn.ShouldBeNull();
             }
         }
     }

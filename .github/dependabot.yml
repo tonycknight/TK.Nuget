@@ -12,5 +12,3 @@ updates:
     open-pull-requests-limit: 20
     ignore:
     - dependency-name: "Microsoft.Extensions.DependencyInjection"
-    - dependency-name: "FluentAssertions"
-      versions: ['8.*']
