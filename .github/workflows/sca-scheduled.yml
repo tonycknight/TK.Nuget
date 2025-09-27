@@ -27,10 +27,10 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Run SCA
-      uses: tonycknight/pkgchk-action@v1.0.19
+      uses: tonycknight/pkgchk-action@v1.0.26
       with:
          deprecated: true
          vulnerable:  true

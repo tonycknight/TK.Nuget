@@ -27,10 +27,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5.0.0
         with:
           dotnet-version: ${{ env.dotnet-version }}
         
@@ -48,10 +48,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5.0.0
         with:
           dotnet-version: ${{ env.dotnet-version }}
         
@@ -81,7 +81,7 @@ jobs:
           path: ./publish/codecoverage/*.*
 
       - name: Unit test results
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: always()
         with:
           name: unit test results
@@ -109,10 +109,10 @@ jobs:
     needs: [ sca, codeql, tests, mutation-testing ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5.0.0
                 
       - name: Restore tools
         run: dotnet tool restore
@@ -139,7 +139,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:    
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Create Release
         uses: ncipollo/release-action@v1
