@@ -68,14 +68,14 @@ jobs:
         run: dotnet reportgenerator -reports:./tests/**/coverage.info -targetdir:./publish/codecoverage -reporttypes:html
       
       - name: Archive Test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: tests.results
           path: |
             ./tests/**/TestResults/*
       
       - name: Archive Code coverage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: codecoverage
           path: ./publish/codecoverage/*.*
