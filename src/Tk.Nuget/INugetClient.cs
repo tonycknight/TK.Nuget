@@ -23,5 +23,13 @@
         /// <param name="sourceUrl">The repo source URL for private package repositories.</param>
         /// <returns>The latest version if eligible, null if not.</returns>
         Task<string?> GetUpgradeVersionAsync(string packageId, string currentVersion, bool includePrerelease = false, string? sourceUrl = null);
+
+        /// <summary>
+        /// Gets a package's metadata, of the latest version.
+        /// </summary>
+        /// <param name="packageId">The package ID.</param>
+        /// <param name="sourceUrl">The repo source URL for private package repositories.</param>
+        /// <returns>Package metadata if the package exists, or null if the package does not exist.</returns>
+        Task<PackageMetadata?> GetMetadataAsync(string packageId, string? sourceUrl = null);
     }
 }

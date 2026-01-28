@@ -21,7 +21,7 @@ namespace Tk.Nuget
                 var mdr = sourceRepository.GetResource<MetadataResource>();
 
                 using var cache = new SourceCacheContext();
-
+                
                 var vsn = await mdr.GetLatestVersion(packageId, includePrerelease, false, cache, logger, CancellationToken.None);
 
                 return vsn?.ToString();
@@ -50,6 +50,26 @@ namespace Tk.Nuget
                 return latestVersion;
             }
             return null;
+        }
+
+        /// <inheritdoc/>
+        public async Task<PackageMetadata?> GetMetadataAsync(string packageId, string? sourceUrl = null)
+        {
+            packageId.ArgNotNull(nameof(packageId));
+            packageId.ArgNotEmpty(nameof(packageId));
+
+            sourceUrl ??= NuGetConstants.V3FeedUrl;
+            var logger = new NuGet.Common.NullLogger();
+            var sourceRepository = Repository.Factory.GetCoreV3(new PackageSource(sourceUrl));
+            var mdr = await sourceRepository.GetResourceAsync<PackageMetadataResource>();
+            
+            using var cache = new SourceCacheContext();
+            
+            var xs = await mdr.GetMetadataAsync(packageId, false, false, cache, logger, CancellationToken.None);
+
+            var latest = xs.OrderByDescending(x => x.Identity.Version).FirstOrDefault();
+            
+            return latest?.ToPackageMetadata();
         }
     }
 }

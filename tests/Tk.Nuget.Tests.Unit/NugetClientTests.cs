@@ -79,5 +79,49 @@ namespace Tk.Nuget.Tests.Unit
                 vsn.ShouldBeNull();
             }
         }
+
+        [Theory]
+        [InlineData("Tk.Nuget")]
+        [InlineData("pkgchk-cli")]
+        [InlineData("Newtonsoft.Json")]
+        [InlineData("Microsoft.Extensions.DependencyInjection")]
+        public async Task GetMetadataAsync_KnownPackage_MetadataReturned(string id)
+        {
+            var c = new NugetClient();
+
+            var meta = await c.GetMetadataAsync(id, null);
+
+            meta.ShouldNotBeNull();
+            meta.Id.ShouldBe(id);
+            meta.Description.ShouldNotBeEmpty();
+            meta.Authors.ShouldNotBeEmpty();
+            meta.Version.ShouldNotBeEmpty();
+            meta.Title.ShouldNotBeEmpty();
+            meta.Summary.ShouldNotBeEmpty();
+        }
+
+        [Theory]
+        [InlineData("babb7044-6d80-4fa0-a756-b24260efd319")]        
+        public async Task GetMetadataAsync_UnknownPackage_NullReturned(string id)
+        {
+            var c = new NugetClient();
+
+            var meta = await c.GetMetadataAsync(id, null);
+
+            meta.ShouldBeNull();            
+        }
+
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public async Task GetMetadataAsync_InvalidPackageId_ExceptionThrown(string id)
+        {
+            var c = new NugetClient();
+
+            Func<Task<PackageMetadata>> get = async () => await c.GetMetadataAsync(id, null);
+
+            get.ShouldThrow<ArgumentException>();
+        }
     }
 }
