@@ -53,7 +53,7 @@ namespace Tk.Nuget
         }
 
         /// <inheritdoc/>
-        public async Task<PackageMetadata?> GetMetadataAsync(string packageId, string? sourceUrl = null)
+        public async Task<PackageMetadata?> GetMetadataAsync(string packageId, CancellationToken cancellation, string? sourceUrl = null)
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
@@ -65,7 +65,7 @@ namespace Tk.Nuget
             
             using var cache = new SourceCacheContext();
             
-            var xs = await mdr.GetMetadataAsync(packageId, false, false, cache, logger, CancellationToken.None);
+            var xs = await mdr.GetMetadataAsync(packageId, false, false, cache, logger, cancellation);
 
             var latest = xs.OrderByDescending(x => x.Identity.Version).FirstOrDefault();
             

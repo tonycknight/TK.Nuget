@@ -89,7 +89,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, null);
+            var meta = await c.GetMetadataAsync(id, CancellationToken.None, null);
 
             meta.ShouldNotBeNull();
             meta.Id.ShouldBe(id);
@@ -106,7 +106,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, null);
+            var meta = await c.GetMetadataAsync(id, CancellationToken.None, null);
 
             meta.ShouldBeNull();            
         }
@@ -119,7 +119,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            Func<Task<PackageMetadata>> get = async () => await c.GetMetadataAsync(id, null);
+            Func<Task<PackageMetadata?>> get = async () => await c.GetMetadataAsync(id, CancellationToken.None, null);
 
             get.ShouldThrow<ArgumentException>();
         }
