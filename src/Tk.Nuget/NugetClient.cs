@@ -8,7 +8,7 @@ namespace Tk.Nuget
     public class NugetClient : INugetClient
     {
         /// <inheritdoc/>
-        public async Task<string?> GetLatestNugetVersionAsync(string packageId, bool includePrerelease = false, string? sourceUrl = null)
+        public async Task<string?> GetLatestNugetVersionAsync(string packageId, bool includePrerelease, CancellationToken cancellation, string? sourceUrl = null)
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
@@ -22,7 +22,7 @@ namespace Tk.Nuget
 
                 using var cache = new SourceCacheContext();
                 
-                var vsn = await mdr.GetLatestVersion(packageId, includePrerelease, false, cache, logger, CancellationToken.None);
+                var vsn = await mdr.GetLatestVersion(packageId, includePrerelease, false, cache, logger, cancellation);
 
                 return vsn?.ToString();
             }
@@ -33,12 +33,12 @@ namespace Tk.Nuget
         }
 
         /// <inheritdoc/>
-        public async Task<string?> GetUpgradeVersionAsync(string packageId, string currentVersion, bool includePrerelease = false, string? sourceUrl = null)
+        public async Task<string?> GetUpgradeVersionAsync(string packageId, string currentVersion, bool includePrerelease, CancellationToken cancellation, string? sourceUrl = null)
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
 
-            var latestVersion = await this.GetLatestNugetVersionAsync(packageId, includePrerelease, sourceUrl);
+            var latestVersion = await GetLatestNugetVersionAsync(packageId, includePrerelease, cancellation, sourceUrl);
 
             if (latestVersion == null) return null;
 

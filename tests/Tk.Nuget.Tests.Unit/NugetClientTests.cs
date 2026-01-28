@@ -9,7 +9,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var func = () => c.GetLatestNugetVersionAsync(null!, false, null);
+            var func = () => c.GetLatestNugetVersionAsync(null!, false, CancellationToken.None, null);
 
             func.ShouldThrowAsync<ArgumentNullException>();
         }
@@ -21,7 +21,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var func = () => c.GetLatestNugetVersionAsync(id, false, null);
+            var func = () => c.GetLatestNugetVersionAsync(id, false, CancellationToken.None, null);
 
             func.ShouldThrowAsync<ArgumentNullException>();
         }
@@ -32,8 +32,8 @@ namespace Tk.Nuget.Tests.Unit
         public async Task GetLatestNugetVersionAsync_KnownPackage_VersionReturned(string id)
         {
             var c = new NugetClient();
-
-            var vsn = await c.GetLatestNugetVersionAsync(id, false, null);
+            
+            var vsn = await c.GetLatestNugetVersionAsync(id, false, CancellationToken.None, null);
 
             // We've no control over version numbers, so we'll just assert that a version string is returned.
             var v = Version.Parse(vsn!);
@@ -46,7 +46,7 @@ namespace Tk.Nuget.Tests.Unit
             var id = Guid.NewGuid().ToString();
             var c = new NugetClient();
 
-            var vsn = await c.GetLatestNugetVersionAsync(id, false, null);
+            var vsn = await c.GetLatestNugetVersionAsync(id, false, CancellationToken.None, null);
 
             vsn.ShouldBeNull();
         }
@@ -68,7 +68,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false, null);
+            var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false, CancellationToken.None, null);
 
             if (upgradeExpected)
             {
