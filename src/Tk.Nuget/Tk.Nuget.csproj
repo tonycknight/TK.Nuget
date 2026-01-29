@@ -10,8 +10,10 @@
     <RepositoryUrl>https://github.com/tonycknight/TK.Nuget</RepositoryUrl>
     <LangVersion>latest</LangVersion>
     <Description>An opinionated reader of Nuget</Description>
+    <PackageProjectUrl>https://github.com/tonycknight/TK.Nuget</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
