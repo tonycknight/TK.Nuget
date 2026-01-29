@@ -85,11 +85,11 @@ namespace Tk.Nuget.Tests.Unit
         [InlineData("pkgchk-cli")]
         [InlineData("Newtonsoft.Json")]
         [InlineData("Microsoft.Extensions.DependencyInjection")]
-        public async Task GetMetadataAsync_KnownPackage_MetadataReturned(string id)
+        public async Task GetLatestMetadataAsync_KnownPackage_MetadataReturned(string id)
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, CancellationToken.None, null);
+            var meta = await c.GetLatestMetadataAsync(id, CancellationToken.None, null);
 
             meta.ShouldNotBeNull();
             meta.Id.ShouldBe(id);
@@ -102,13 +102,60 @@ namespace Tk.Nuget.Tests.Unit
 
         [Theory]
         [InlineData("babb7044-6d80-4fa0-a756-b24260efd319")]        
-        public async Task GetMetadataAsync_UnknownPackage_NullReturned(string id)
+        public async Task GetLatestMetadataAsync_UnknownPackage_NullReturned(string id)
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, CancellationToken.None, null);
+            var meta = await c.GetLatestMetadataAsync(id, CancellationToken.None, null);
 
             meta.ShouldBeNull();            
+        }
+
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public async Task GetLatestMetadataAsync_InvalidPackageId_ExceptionThrown(string id)
+        {
+            var c = new NugetClient();
+
+            Func<Task<PackageMetadata?>> get = async () => await c.GetLatestMetadataAsync(id, CancellationToken.None, null);
+
+            get.ShouldThrow<ArgumentException>();
+        }
+
+        //
+
+        [Theory]
+        [InlineData("Tk.Nuget", "0.1.159")]
+        [InlineData("pkgchk-cli", "1.0.0")]
+        [InlineData("Newtonsoft.Json", "13.0.4")]
+        [InlineData("Microsoft.Extensions.DependencyInjection", "10.0.2")]
+        public async Task GetMetadataAsync_KnownPackage_MetadataReturned(string id, string version)
+        {
+            var c = new NugetClient();
+
+            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None, null);
+
+            meta.ShouldNotBeNull();
+            meta.Id.ShouldBe(id);
+            meta.Description.ShouldNotBeEmpty();
+            meta.Authors.ShouldNotBeEmpty();
+            meta.Version.ShouldNotBeEmpty();
+            meta.Title.ShouldNotBeEmpty();
+            meta.Summary.ShouldNotBeEmpty();
+        }
+
+        [Theory]
+        [InlineData("babb7044-6d80-4fa0-a756-b24260efd319", "")]
+        [InlineData("Newtonsoft.Json", "a")]
+        public async Task GetMetadataAsync_UnknownPackage_NullReturned(string id, string version)
+        {
+            var c = new NugetClient();
+
+            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None, null);
+
+            meta.ShouldBeNull();
         }
 
 
@@ -119,7 +166,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            Func<Task<PackageMetadata?>> get = async () => await c.GetMetadataAsync(id, CancellationToken.None, null);
+            Func<Task<PackageMetadata?>> get = async () => await c.GetMetadataAsync(id, "", CancellationToken.None, null);
 
             get.ShouldThrow<ArgumentException>();
         }

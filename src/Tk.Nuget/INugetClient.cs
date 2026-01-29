@@ -30,6 +30,15 @@
         /// <param name="packageId">The package ID.</param>
         /// <param name="sourceUrl">The repo source URL for private package repositories. If null, https://api.nuget.org/v3/index.json is assumed,</param>
         /// <returns>Package metadata if the package exists, or null if the package does not exist.</returns>
-        Task<PackageMetadata?> GetMetadataAsync(string packageId, CancellationToken cancellation, string? sourceUrl = null);
+        Task<PackageMetadata?> GetLatestMetadataAsync(string packageId, CancellationToken cancellation, string? sourceUrl = null);
+
+        /// <summary>
+        /// Gets a package's metadata, of the latest version.
+        /// </summary>
+        /// <param name="packageId">The package ID.</param>
+        /// <param name="version">The version to check.</param>
+        /// <param name="sourceUrl">The repo source URL for private package repositories. If null, https://api.nuget.org/v3/index.json is assumed,</param>
+        /// <returns>Package metadata if the package exists, or null if the package does not exist.</returns>
+        Task<PackageMetadata?> GetMetadataAsync(string packageId, string version, CancellationToken cancellation, string? sourceUrl = null);
     }
 }

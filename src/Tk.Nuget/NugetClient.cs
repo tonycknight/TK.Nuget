@@ -53,23 +53,37 @@ namespace Tk.Nuget
         }
 
         /// <inheritdoc/>
-        public async Task<PackageMetadata?> GetMetadataAsync(string packageId, CancellationToken cancellation, string? sourceUrl = null)
+        public async Task<PackageMetadata?> GetLatestMetadataAsync(string packageId, CancellationToken cancellation, string? sourceUrl = null)
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
 
+            var metadata = await GetMetadataAsync(packageId, sourceUrl, cancellation);
+
+            return metadata.OrderByDescending(x => x.Identity.Version).FirstOrDefault()?.ToPackageMetadata();
+        }
+
+        /// <inheritdoc/>
+        public async Task<PackageMetadata?> GetMetadataAsync(string packageId, string version, CancellationToken cancellation, string? sourceUrl = null)
+        {
+            packageId.ArgNotNull(nameof(packageId));
+            packageId.ArgNotEmpty(nameof(packageId));
+
+            var metadata = await GetMetadataAsync(packageId, sourceUrl, cancellation);
+
+            return metadata.FirstOrDefault(x => x.Identity.Version.ToString() == version)?.ToPackageMetadata();
+        }
+
+        private static async Task<IList<IPackageSearchMetadata>> GetMetadataAsync(string packageId, string? sourceUrl, CancellationToken cancellation)
+        {
             sourceUrl ??= NuGetConstants.V3FeedUrl;
             var logger = new NuGet.Common.NullLogger();
             var sourceRepository = Repository.Factory.GetCoreV3(new PackageSource(sourceUrl));
             var mdr = await sourceRepository.GetResourceAsync<PackageMetadataResource>();
-            
-            using var cache = new SourceCacheContext();
-            
-            var xs = await mdr.GetMetadataAsync(packageId, false, false, cache, logger, cancellation);
 
-            var latest = xs.OrderByDescending(x => x.Identity.Version).FirstOrDefault();
-            
-            return latest?.ToPackageMetadata();
+            using var cache = new SourceCacheContext();
+
+            return (await mdr.GetMetadataAsync(packageId, false, false, cache, logger, cancellation)).ToList();
         }
     }
 }
