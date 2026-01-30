@@ -9,7 +9,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var func = () => c.GetLatestNugetVersionAsync(null!, false, null);
+            var func = () => c.GetLatestNugetVersionAsync(null!, false);
 
             func.ShouldThrowAsync<ArgumentNullException>();
         }
@@ -21,7 +21,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var func = () => c.GetLatestNugetVersionAsync(id, false, null);
+            var func = () => c.GetLatestNugetVersionAsync(id, false);
 
             func.ShouldThrowAsync<ArgumentNullException>();
         }
@@ -33,7 +33,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var vsn = await c.GetLatestNugetVersionAsync(id, false, null);
+            var vsn = await c.GetLatestNugetVersionAsync(id, false);
 
             // We've no control over version numbers, so we'll just assert that a version string is returned.
             var v = Version.Parse(vsn!);
@@ -46,7 +46,7 @@ namespace Tk.Nuget.Tests.Unit
             var id = Guid.NewGuid().ToString();
             var c = new NugetClient();
 
-            var vsn = await c.GetLatestNugetVersionAsync(id, false, null);
+            var vsn = await c.GetLatestNugetVersionAsync(id, false);
 
             vsn.ShouldBeNull();
         }
@@ -68,7 +68,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false, null);
+            var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false);
 
             if (upgradeExpected)
             {
@@ -78,6 +78,97 @@ namespace Tk.Nuget.Tests.Unit
             {
                 vsn.ShouldBeNull();
             }
+        }
+
+        [Theory]
+        [InlineData("Tk.Nuget")]
+        [InlineData("pkgchk-cli")]
+        [InlineData("Newtonsoft.Json")]
+        [InlineData("Microsoft.Extensions.DependencyInjection")]
+        public async Task GetLatestMetadataAsync_KnownPackage_MetadataReturned(string id)
+        {
+            var c = new NugetClient();
+
+            var meta = await c.GetLatestMetadataAsync(id);
+
+            meta.ShouldNotBeNull();
+            meta.Id.ShouldBe(id);
+            meta.Description.ShouldNotBeEmpty();
+            meta.Authors.ShouldNotBeEmpty();
+            meta.Version.ShouldNotBeEmpty();
+            meta.Title.ShouldNotBeEmpty();
+            meta.Summary.ShouldNotBeEmpty();
+        }
+
+        [Theory]
+        [InlineData("babb7044-6d80-4fa0-a756-b24260efd319")]
+        public async Task GetLatestMetadataAsync_UnknownPackage_NullReturned(string id)
+        {
+            var c = new NugetClient();
+
+            var meta = await c.GetLatestMetadataAsync(id);
+
+            meta.ShouldBeNull();
+        }
+
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public async Task GetLatestMetadataAsync_InvalidPackageId_ExceptionThrown(string id)
+        {
+            var c = new NugetClient();
+
+            Func<Task<PackageMetadata?>> get = async () => await c.GetLatestMetadataAsync(id);
+
+            get.ShouldThrow<ArgumentException>();
+        }
+
+        //
+
+        [Theory]
+        [InlineData("Tk.Nuget", "0.1.159")]
+        [InlineData("pkgchk-cli", "1.0.0")]
+        [InlineData("Newtonsoft.Json", "13.0.4")]
+        [InlineData("Microsoft.Extensions.DependencyInjection", "10.0.2")]
+        public async Task GetMetadataAsync_KnownPackage_MetadataReturned(string id, string version)
+        {
+            var c = new NugetClient();
+
+            var meta = await c.GetMetadataAsync(id, version);
+
+            meta.ShouldNotBeNull();
+            meta.Id.ShouldBe(id);
+            meta.Description.ShouldNotBeEmpty();
+            meta.Authors.ShouldNotBeEmpty();
+            meta.Version.ShouldNotBeEmpty();
+            meta.Title.ShouldNotBeEmpty();
+            meta.Summary.ShouldNotBeEmpty();
+        }
+
+        [Theory]
+        [InlineData("babb7044-6d80-4fa0-a756-b24260efd319", "")]
+        [InlineData("Newtonsoft.Json", "a")]
+        public async Task GetMetadataAsync_UnknownPackage_NullReturned(string id, string version)
+        {
+            var c = new NugetClient();
+
+            var meta = await c.GetMetadataAsync(id, version);
+
+            meta.ShouldBeNull();
+        }
+
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public async Task GetMetadataAsync_InvalidPackageId_ExceptionThrown(string id)
+        {
+            var c = new NugetClient();
+
+            Func<Task<PackageMetadata?>> get = async () => await c.GetMetadataAsync(id, "");
+
+            get.ShouldThrow<ArgumentException>();
         }
     }
 }
