@@ -30,7 +30,7 @@ namespace Tk.Nuget.Tests.Unit
         public static IEnumerable<object[]> ToPackageMetadata_Maps_ValueReturned_Data()
         {
             yield return new[]
-            {                
+            {
                 new StubPackageSearchMetadata()
                 {
                     Authors = "author",

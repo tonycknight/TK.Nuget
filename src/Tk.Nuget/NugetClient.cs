@@ -21,7 +21,7 @@ namespace Tk.Nuget
                 var mdr = sourceRepository.GetResource<MetadataResource>();
 
                 using var cache = new SourceCacheContext();
-                
+
                 var vsn = await mdr.GetLatestVersion(packageId, includePrerelease, false, cache, logger, cancellation);
 
                 return vsn?.ToString();
@@ -68,7 +68,7 @@ namespace Tk.Nuget
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
-            
+
             var metadata = await GetMetadataAsync(packageId, sourceUrl, cancellation);
 
             return metadata.FirstOrDefault(x => x.Identity.Version.ToString() == version)?.ToPackageMetadata();

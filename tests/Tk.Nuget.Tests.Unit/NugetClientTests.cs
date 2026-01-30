@@ -32,7 +32,7 @@ namespace Tk.Nuget.Tests.Unit
         public async Task GetLatestNugetVersionAsync_KnownPackage_VersionReturned(string id)
         {
             var c = new NugetClient();
-            
+
             var vsn = await c.GetLatestNugetVersionAsync(id, false);
 
             // We've no control over version numbers, so we'll just assert that a version string is returned.
@@ -101,14 +101,14 @@ namespace Tk.Nuget.Tests.Unit
         }
 
         [Theory]
-        [InlineData("babb7044-6d80-4fa0-a756-b24260efd319")]        
+        [InlineData("babb7044-6d80-4fa0-a756-b24260efd319")]
         public async Task GetLatestMetadataAsync_UnknownPackage_NullReturned(string id)
         {
             var c = new NugetClient();
 
             var meta = await c.GetLatestMetadataAsync(id);
 
-            meta.ShouldBeNull();            
+            meta.ShouldBeNull();
         }
 
 
