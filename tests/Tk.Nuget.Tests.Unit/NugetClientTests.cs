@@ -9,7 +9,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var func = () => c.GetLatestNugetVersionAsync(null!, false, CancellationToken.None, null);
+            var func = () => c.GetLatestNugetVersionAsync(null!, false);
 
             func.ShouldThrowAsync<ArgumentNullException>();
         }
@@ -21,7 +21,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var func = () => c.GetLatestNugetVersionAsync(id, false, CancellationToken.None, null);
+            var func = () => c.GetLatestNugetVersionAsync(id, false);
 
             func.ShouldThrowAsync<ArgumentNullException>();
         }
@@ -33,7 +33,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
             
-            var vsn = await c.GetLatestNugetVersionAsync(id, false, CancellationToken.None, null);
+            var vsn = await c.GetLatestNugetVersionAsync(id, false);
 
             // We've no control over version numbers, so we'll just assert that a version string is returned.
             var v = Version.Parse(vsn!);
@@ -46,7 +46,7 @@ namespace Tk.Nuget.Tests.Unit
             var id = Guid.NewGuid().ToString();
             var c = new NugetClient();
 
-            var vsn = await c.GetLatestNugetVersionAsync(id, false, CancellationToken.None, null);
+            var vsn = await c.GetLatestNugetVersionAsync(id, false);
 
             vsn.ShouldBeNull();
         }
@@ -68,7 +68,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false, CancellationToken.None, null);
+            var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false);
 
             if (upgradeExpected)
             {
@@ -89,7 +89,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetLatestMetadataAsync(id, CancellationToken.None, null);
+            var meta = await c.GetLatestMetadataAsync(id);
 
             meta.ShouldNotBeNull();
             meta.Id.ShouldBe(id);
@@ -106,7 +106,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetLatestMetadataAsync(id, CancellationToken.None, null);
+            var meta = await c.GetLatestMetadataAsync(id);
 
             meta.ShouldBeNull();            
         }
@@ -119,7 +119,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            Func<Task<PackageMetadata?>> get = async () => await c.GetLatestMetadataAsync(id, CancellationToken.None, null);
+            Func<Task<PackageMetadata?>> get = async () => await c.GetLatestMetadataAsync(id);
 
             get.ShouldThrow<ArgumentException>();
         }
@@ -135,7 +135,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None, null);
+            var meta = await c.GetMetadataAsync(id, version);
 
             meta.ShouldNotBeNull();
             meta.Id.ShouldBe(id);
@@ -153,7 +153,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None, null);
+            var meta = await c.GetMetadataAsync(id, version);
 
             meta.ShouldBeNull();
         }
@@ -166,7 +166,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            Func<Task<PackageMetadata?>> get = async () => await c.GetMetadataAsync(id, "", CancellationToken.None, null);
+            Func<Task<PackageMetadata?>> get = async () => await c.GetMetadataAsync(id, "");
 
             get.ShouldThrow<ArgumentException>();
         }

@@ -8,7 +8,7 @@ namespace Tk.Nuget
     public class NugetClient : INugetClient
     {
         /// <inheritdoc/>
-        public async Task<string?> GetLatestNugetVersionAsync(string packageId, bool includePrerelease, CancellationToken cancellation, string? sourceUrl = null)
+        public async Task<string?> GetLatestNugetVersionAsync(string packageId, bool includePrerelease, CancellationToken cancellation = default, string? sourceUrl = null)
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
@@ -33,7 +33,7 @@ namespace Tk.Nuget
         }
 
         /// <inheritdoc/>
-        public async Task<string?> GetUpgradeVersionAsync(string packageId, string currentVersion, bool includePrerelease, CancellationToken cancellation, string? sourceUrl = null)
+        public async Task<string?> GetUpgradeVersionAsync(string packageId, string currentVersion, bool includePrerelease, CancellationToken cancellation = default, string? sourceUrl = null)
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
@@ -53,7 +53,7 @@ namespace Tk.Nuget
         }
 
         /// <inheritdoc/>
-        public async Task<PackageMetadata?> GetLatestMetadataAsync(string packageId, CancellationToken cancellation, string? sourceUrl = null)
+        public async Task<PackageMetadata?> GetLatestMetadataAsync(string packageId, CancellationToken cancellation = default, string? sourceUrl = null)
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
@@ -64,11 +64,11 @@ namespace Tk.Nuget
         }
 
         /// <inheritdoc/>
-        public async Task<PackageMetadata?> GetMetadataAsync(string packageId, string version, CancellationToken cancellation, string? sourceUrl = null)
+        public async Task<PackageMetadata?> GetMetadataAsync(string packageId, string version, CancellationToken cancellation = default, string? sourceUrl = null)
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
-
+            
             var metadata = await GetMetadataAsync(packageId, sourceUrl, cancellation);
 
             return metadata.FirstOrDefault(x => x.Identity.Version.ToString() == version)?.ToPackageMetadata();
