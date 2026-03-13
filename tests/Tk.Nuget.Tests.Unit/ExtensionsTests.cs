@@ -11,7 +11,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var result = value.ToPackageMetadata();
 
-            result.Id.ShouldBe(value.Identity.Id);
+            result.Id.ShouldBe(value.Identity!.Id);
             result.Authors.ShouldBe(value.Authors);
             result.Description.ShouldBe(value.Description);
             result.DownloadCount.ShouldBe(value.DownloadCount);

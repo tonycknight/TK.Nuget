@@ -33,7 +33,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var vsn = await c.GetLatestNugetVersionAsync(id, false);
+            var vsn = await c.GetLatestNugetVersionAsync(id, false, CancellationToken.None);
 
             // We've no control over version numbers, so we'll just assert that a version string is returned.
             var v = Version.Parse(vsn!);
@@ -46,7 +46,7 @@ namespace Tk.Nuget.Tests.Unit
             var id = Guid.NewGuid().ToString();
             var c = new NugetClient();
 
-            var vsn = await c.GetLatestNugetVersionAsync(id, false);
+            var vsn = await c.GetLatestNugetVersionAsync(id, false, CancellationToken.None);
 
             vsn.ShouldBeNull();
         }
@@ -68,7 +68,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false);
+            var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false, CancellationToken.None);
 
             if (upgradeExpected)
             {
@@ -89,7 +89,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetLatestMetadataAsync(id);
+            var meta = await c.GetLatestMetadataAsync(id, CancellationToken.None);
 
             meta.ShouldNotBeNull();
             meta.Id.ShouldBe(id);
@@ -106,7 +106,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetLatestMetadataAsync(id);
+            var meta = await c.GetLatestMetadataAsync(id, CancellationToken.None);
 
             meta.ShouldBeNull();
         }
@@ -135,7 +135,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, version);
+            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
 
             meta.ShouldNotBeNull();
             meta.Id.ShouldBe(id);
@@ -153,7 +153,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, version);
+            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
 
             meta.ShouldBeNull();
         }
