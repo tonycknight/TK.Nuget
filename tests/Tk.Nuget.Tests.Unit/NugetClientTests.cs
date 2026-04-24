@@ -144,6 +144,8 @@ namespace Tk.Nuget.Tests.Unit
             meta.Version.ShouldNotBeEmpty();
             meta.Title.ShouldNotBeEmpty();
             meta.Summary.ShouldNotBeEmpty();
+            meta.Deprecation.ShouldBeNull();
+            meta.Vulnerabilities.ShouldBeEmpty();
         }
 
         [Theory]
