@@ -130,7 +130,7 @@ namespace Tk.Nuget.Tests.Unit
         [InlineData("Tk.Nuget", "0.1.159")]
         [InlineData("pkgchk-cli", "1.0.0")]
         [InlineData("Newtonsoft.Json", "13.0.4")]
-        [InlineData("Microsoft.Extensions.DependencyInjection", "10.0.2")]        
+        [InlineData("Microsoft.Extensions.DependencyInjection", "10.0.2")]
         public async Task GetMetadataAsync_KnownPackage_MetadataReturned(string id, string version)
         {
             var c = new NugetClient();
@@ -153,7 +153,7 @@ namespace Tk.Nuget.Tests.Unit
         public async Task GetMetadataAsync_KnownPackage_DeprecationMetadataReturned(string id, string version)
         {
             var c = new NugetClient();
-            
+
             var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
 
             meta.ShouldNotBeNull();
@@ -167,7 +167,7 @@ namespace Tk.Nuget.Tests.Unit
         public async Task GetMetadataAsync_KnownPackage_VulnerabilityMetadataReturned(string id, string version)
         {
             var c = new NugetClient();
-            
+
             var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
 
             meta.ShouldNotBeNull();
