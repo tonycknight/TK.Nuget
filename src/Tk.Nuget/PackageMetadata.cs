@@ -17,5 +17,7 @@
         public string Summary { get; init; } = string.Empty;
         public string Tags { get; init; } = string.Empty;
         public string Title { get; init; } = string.Empty;
+        public PackageDeprecation? Deprecation { get; init; }
+        public IList<PackageVulnerability>? Vulnerabilities { get; init; } = [];
     }
 }

@@ -58,9 +58,14 @@ namespace Tk.Nuget
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
 
-            var metadata = await GetMetadataAsync(packageId, sourceUrl, cancellation);
+            var entries = await GetMetadataAsync(packageId, sourceUrl, cancellation);
+            var metadata = entries.OrderByDescending(x => x.Identity.Version).FirstOrDefault();
 
-            return metadata.OrderByDescending(x => x.Identity.Version).FirstOrDefault()?.ToPackageMetadata();
+            if (metadata != null)
+            {
+                return await metadata?.ToPackageMetadata()!;
+            }
+            return null;
         }
 
         /// <inheritdoc/>
@@ -69,9 +74,14 @@ namespace Tk.Nuget
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
 
-            var metadata = await GetMetadataAsync(packageId, sourceUrl, cancellation);
+            var entries = await GetMetadataAsync(packageId, sourceUrl, cancellation);
+            var metadata = entries.FirstOrDefault(x => x.Identity.Version.ToString() == version);
 
-            return metadata.FirstOrDefault(x => x.Identity.Version.ToString() == version)?.ToPackageMetadata();
+            if (metadata != null)
+            {
+                return await metadata?.ToPackageMetadata()!;
+            }
+            return null;
         }
 
         private static async Task<IList<IPackageSearchMetadata>> GetMetadataAsync(string packageId, string? sourceUrl, CancellationToken cancellation)

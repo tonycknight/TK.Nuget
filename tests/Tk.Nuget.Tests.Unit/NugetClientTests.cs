@@ -144,6 +144,34 @@ namespace Tk.Nuget.Tests.Unit
             meta.Version.ShouldNotBeEmpty();
             meta.Title.ShouldNotBeEmpty();
             meta.Summary.ShouldNotBeEmpty();
+            meta.Deprecation.ShouldBeNull();
+            meta.Vulnerabilities.ShouldBeEmpty();
+        }
+
+        [Theory]
+        [InlineData("xunit", "2.9.3")]
+        public async Task GetMetadataAsync_KnownPackage_DeprecationMetadataReturned(string id, string version)
+        {
+            var c = new NugetClient();
+
+            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
+
+            meta.ShouldNotBeNull();
+            meta.Deprecation.ShouldNotBeNull();
+            meta.Deprecation.AlternatePackage.ShouldNotBeNull();
+            meta.Deprecation.AlternatePackage.Name.ShouldNotBeEmpty();
+        }
+
+        [Theory]
+        [InlineData("System.Net.Http", "4.3.3")]
+        public async Task GetMetadataAsync_KnownPackage_VulnerabilityMetadataReturned(string id, string version)
+        {
+            var c = new NugetClient();
+
+            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
+
+            meta.ShouldNotBeNull();
+            meta.Vulnerabilities.ShouldNotBeEmpty();
         }
 
         [Theory]

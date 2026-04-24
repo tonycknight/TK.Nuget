@@ -7,9 +7,9 @@ namespace Tk.Nuget.Tests.Unit
     {
         [Theory]
         [MemberData(nameof(ToPackageMetadata_Maps_ValueReturned_Data))]
-        public void ToPackageMetadata_Maps_ValueReturned(StubPackageSearchMetadata value)
+        public async Task ToPackageMetadata_Maps_ValueReturned(StubPackageSearchMetadata value)
         {
-            var result = value.ToPackageMetadata();
+            var result = await value.ToPackageMetadata();
 
             result.Id.ShouldBe(value.Identity!.Id);
             result.Authors.ShouldBe(value.Authors);
