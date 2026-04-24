@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 
 namespace Tk.Nuget
@@ -25,38 +26,59 @@ namespace Tk.Nuget
             return value;
         }
 
-        public static PackageMetadata ToPackageMetadata(this IPackageSearchMetadata value) => new PackageMetadata()
-        {
-            Id = value.Identity.Id,
-            Version = value.Identity?.Version?.ToNormalizedString() ?? "",
-            Authors = value.Authors,
-            Title = value.Title,
-            Description = value.Description,
-            Summary = value.Summary,
-            DownloadCount = value.DownloadCount,
-            IconUrl = value.IconUrl,
-            LicenseUrl = value.LicenseUrl,
-            License = value.LicenseMetadata?.License,
-            ProjectUrl = value.ProjectUrl,
-            ReadmeUrl = value.ReadmeUrl,
-            Published = value.Published,
-            RequireLicenseAcceptance = value.RequireLicenseAcceptance,
-            Tags = value.Tags,
-            Vulnerabilities = (value.Vulnerabilities ?? []).Select(v => new PackageVulnerability()
+        public static async Task<PackageMetadata> ToPackageMetadata(this IPackageSearchMetadata value) =>
+            new PackageMetadata()
+            {
+                Id = value.Identity.Id,
+                Version = value.Identity?.Version?.ToNormalizedString() ?? "",
+                Authors = value.Authors,
+                Title = value.Title,
+                Description = value.Description,
+                Summary = value.Summary,
+                DownloadCount = value.DownloadCount,
+                IconUrl = value.IconUrl,
+                LicenseUrl = value.LicenseUrl,
+                License = value.LicenseMetadata?.License,
+                ProjectUrl = value.ProjectUrl,
+                ReadmeUrl = value.ReadmeUrl,
+                Published = value.Published,
+                RequireLicenseAcceptance = value.RequireLicenseAcceptance,
+                Tags = value.Tags,
+                Deprecation = (await value.GetDeprecationMetadataAsync())?.ToPackageDeprecation(),
+                Vulnerabilities = value.Vulnerabilities.ToPackageVulnerabilities()
+            };
+
+        private static IList<PackageVulnerability> ToPackageVulnerabilities(this IEnumerable<PackageVulnerabilityMetadata>? values) =>
+            (values ?? []).Select(v => new PackageVulnerability()
             {
                 AdvisoryUrl = v.AdvisoryUrl.ToString(),
                 Severity = v.Severity.ToSeverityString(),
-                
-            }).ToList(),
-        };
 
-        public static PackageVulnerabilitySeverity ToSeverityString(this int severity) => severity switch
-        {
-            0 => PackageVulnerabilitySeverity.Low,
-            1 => PackageVulnerabilitySeverity.Medium,
-            3 => PackageVulnerabilitySeverity.High,
-            4 => PackageVulnerabilitySeverity.Critical,
-            _ => PackageVulnerabilitySeverity.Unknown
-        };
+            }).ToArray();
+
+        private static PackageDeprecation ToPackageDeprecation(this PackageDeprecationMetadata value) =>
+            new PackageDeprecation()
+            {
+                Description = value.Message ?? "",
+                AlternatePackage = value.AlternatePackage?.ToPackageAlternate(),
+                Reasons = (value.Reasons ?? []).ToArray(),
+            };
+
+        private static AlternatePackage ToPackageAlternate(this AlternatePackageMetadata value) =>
+            new AlternatePackage()
+            {
+                Name = value.PackageId ?? "",
+                Range = value.Range?.ToString() ?? "",
+            };
+
+        private static PackageVulnerabilitySeverity ToSeverityString(this int severity) =>
+            severity switch
+            {
+                0 => PackageVulnerabilitySeverity.Low,
+                1 => PackageVulnerabilitySeverity.Medium,
+                3 => PackageVulnerabilitySeverity.High,
+                4 => PackageVulnerabilitySeverity.Critical,
+                _ => PackageVulnerabilitySeverity.Unknown
+            };
     }
 }

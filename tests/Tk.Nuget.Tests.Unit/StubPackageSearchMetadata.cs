@@ -9,7 +9,7 @@ namespace Tk.Nuget.Tests.Unit
     {
         public string? Authors { get; set; }
 
-        public IEnumerable<PackageDependencyGroup> DependencySets => throw new NotImplementedException();
+        public IEnumerable<PackageDependencyGroup> DependencySets => Enumerable.Empty<PackageDependencyGroup>();
 
         public string? Description { get; set; }
 
@@ -55,7 +55,9 @@ namespace Tk.Nuget.Tests.Unit
 
         public Task<PackageDeprecationMetadata> GetDeprecationMetadataAsync()
         {
-            throw new NotImplementedException();
+            var result = new PackageDeprecationMetadata();
+
+            return Task.FromResult(result);
         }
 
         public Task<IEnumerable<VersionInfo>> GetVersionsAsync()

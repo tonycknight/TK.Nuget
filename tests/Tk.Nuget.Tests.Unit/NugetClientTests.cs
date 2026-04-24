@@ -130,7 +130,7 @@ namespace Tk.Nuget.Tests.Unit
         [InlineData("Tk.Nuget", "0.1.159")]
         [InlineData("pkgchk-cli", "1.0.0")]
         [InlineData("Newtonsoft.Json", "13.0.4")]
-        [InlineData("Microsoft.Extensions.DependencyInjection", "10.0.2")]
+        [InlineData("Microsoft.Extensions.DependencyInjection", "10.0.2")]        
         public async Task GetMetadataAsync_KnownPackage_MetadataReturned(string id, string version)
         {
             var c = new NugetClient();
@@ -144,6 +144,32 @@ namespace Tk.Nuget.Tests.Unit
             meta.Version.ShouldNotBeEmpty();
             meta.Title.ShouldNotBeEmpty();
             meta.Summary.ShouldNotBeEmpty();
+        }
+
+        [Theory]
+        [InlineData("xunit", "2.9.3")]
+        public async Task GetMetadataAsync_KnownPackage_DeprecationMetadataReturned(string id, string version)
+        {
+            var c = new NugetClient();
+            
+            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
+
+            meta.ShouldNotBeNull();
+            meta.Deprecation.ShouldNotBeNull();
+            meta.Deprecation.AlternatePackage.ShouldNotBeNull();
+            meta.Deprecation.AlternatePackage.Name.ShouldNotBeEmpty();
+        }
+
+        [Theory]
+        [InlineData("System.Net.Http", "4.3.3")]
+        public async Task GetMetadataAsync_KnownPackage_VulnerabilityMetadataReturned(string id, string version)
+        {
+            var c = new NugetClient();
+            
+            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
+
+            meta.ShouldNotBeNull();
+            meta.Vulnerabilities.ShouldNotBeEmpty();
         }
 
         [Theory]
