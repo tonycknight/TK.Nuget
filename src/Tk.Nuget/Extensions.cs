@@ -76,8 +76,8 @@ namespace Tk.Nuget
             {
                 0 => PackageVulnerabilitySeverity.Low,
                 1 => PackageVulnerabilitySeverity.Medium,
-                3 => PackageVulnerabilitySeverity.High,
-                4 => PackageVulnerabilitySeverity.Critical,
+                2 => PackageVulnerabilitySeverity.High,
+                3 => PackageVulnerabilitySeverity.Critical,
                 _ => PackageVulnerabilitySeverity.Unknown
             };
     }
