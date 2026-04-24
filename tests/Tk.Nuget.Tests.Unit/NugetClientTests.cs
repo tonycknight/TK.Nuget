@@ -164,6 +164,7 @@ namespace Tk.Nuget.Tests.Unit
 
         [Theory]
         [InlineData("System.Net.Http", "4.3.3")]
+        [InlineData("System.Net.Http", "4.3.1")]
         public async Task GetMetadataAsync_KnownPackage_VulnerabilityMetadataReturned(string id, string version)
         {
             var c = new NugetClient();
