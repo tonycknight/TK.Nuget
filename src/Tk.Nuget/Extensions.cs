@@ -42,6 +42,21 @@ namespace Tk.Nuget
             Published = value.Published,
             RequireLicenseAcceptance = value.RequireLicenseAcceptance,
             Tags = value.Tags,
+            Vulnerabilities = (value.Vulnerabilities ?? []).Select(v => new PackageVulnerability()
+            {
+                AdvisoryUrl = v.AdvisoryUrl.ToString(),
+                Severity = v.Severity.ToSeverityString(),
+                
+            }).ToList(),
+        };
+
+        public static PackageVulnerabilitySeverity ToSeverityString(this int severity) => severity switch
+        {
+            0 => PackageVulnerabilitySeverity.Low,
+            1 => PackageVulnerabilitySeverity.Medium,
+            3 => PackageVulnerabilitySeverity.High,
+            4 => PackageVulnerabilitySeverity.Critical,
+            _ => PackageVulnerabilitySeverity.Unknown
         };
     }
 }

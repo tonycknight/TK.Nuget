@@ -17,5 +17,6 @@
         public string Summary { get; init; } = string.Empty;
         public string Tags { get; init; } = string.Empty;
         public string Title { get; init; } = string.Empty;
+        public IList<PackageVulnerability>? Vulnerabilities { get; init; } = [];
     }
 }
