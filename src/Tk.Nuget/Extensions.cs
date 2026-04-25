@@ -29,8 +29,9 @@ namespace Tk.Nuget
         public static async Task<PackageMetadata> ToPackageMetadata(this IPackageSearchMetadata value) =>
             new PackageMetadata()
             {
-                Id = value.Identity.Id,
+                Id = value.Identity?.Id ?? "",
                 Version = value.Identity?.Version?.ToNormalizedString() ?? "",
+                IsPrerelease = value.Identity?.Version?.IsPrerelease ?? false,
                 Authors = value.Authors,
                 Title = value.Title,
                 Description = value.Description,
