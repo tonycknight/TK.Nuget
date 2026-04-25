@@ -199,5 +199,54 @@ namespace Tk.Nuget.Tests.Unit
 
             get.ShouldThrow<ArgumentException>();
         }
+
+        [Theory]
+        [InlineData("System.Net.Http", "4.3.0-preview1-24530-04")]
+        [InlineData("Xunit", "2.5.2-pre.6")]
+        [InlineData("Newtonsoft.Json", "13.0.5-beta1")]
+        [InlineData("FSharp.Core", "11.0.100-preview3.26159.112")]
+        public async Task GetAllMetadataAsync_KnownPackage_IncludesPrerelease_VersionsReturned(string id, string prereleaseVersion)
+        {
+            var c = new NugetClient();
+
+            var entries = await c.GetAllMetadataAsync(id, true, CancellationToken.None);
+
+            entries.ShouldNotBeNull();
+            entries.ShouldNotBeEmpty();
+
+            entries.Any(e => !e.IsPrerelease).ShouldBeTrue();
+            if (prereleaseVersion != "")
+                entries.Single(e => e.Version == prereleaseVersion).IsPrerelease.ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData("System.Net.Http")]
+        [InlineData("Xunit")]
+        [InlineData("Newtonsoft.Json")]
+        [InlineData("FSharp.Core")]
+        public async Task GetAllMetadataAsync_KnownPackage_NoPrerelease_VersionsReturned(string id)
+        {
+            var c = new NugetClient();
+
+            var entries = await c.GetAllMetadataAsync(id, false, CancellationToken.None);
+
+            entries.ShouldNotBeNull();
+            entries.ShouldNotBeEmpty();
+
+            entries.All(e => !e.IsPrerelease).ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData("aaa")]
+        [InlineData(".")]
+        public async Task GetAllMetadataAsync_UnknownPackage_EmptyListReturned(string id)
+        {
+            var c = new NugetClient();
+
+            var entries = await c.GetAllMetadataAsync(id, true, CancellationToken.None);
+
+            entries.ShouldNotBeNull();
+            entries.ShouldBeEmpty();
+        }
     }
 }

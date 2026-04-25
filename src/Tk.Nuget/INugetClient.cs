@@ -40,5 +40,14 @@
         /// <param name="sourceUrl">The repo source URL for private package repositories. If null, https://api.nuget.org/v3/index.json is assumed,</param>
         /// <returns>Package metadata if the package exists, or null if the package does not exist.</returns>
         Task<PackageMetadata?> GetMetadataAsync(string packageId, string version, CancellationToken cancellation = default, string? sourceUrl = null);
+
+        /// <summary>
+        /// Gets a package's metadata, for all versions.
+        /// </summary>
+        /// <param name="packageId">The package ID.</param>
+        /// <param name="includePrerelease">By default, prereleases are not included.</param>
+        /// <param name="sourceUrl">The repo source URL for private package repositories. If null, https://api.nuget.org/v3/index.json is assumed,</param>
+        /// <returns>Package metadata entries if the package exists, or empty if the package does not exist.</returns>
+        Task<IList<PackageMetadata>> GetAllMetadataAsync(string packageId, bool includePrerelease, CancellationToken cancellation = default, string? sourceUrl = null);
     }
 }

@@ -58,7 +58,7 @@ namespace Tk.Nuget
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
 
-            var entries = await GetMetadataAsync(packageId, sourceUrl, cancellation);
+            var entries = await GetMetadataAsync(packageId, sourceUrl, cancellation, false);
             var metadata = entries.OrderByDescending(x => x.Identity.Version).FirstOrDefault();
 
             if (metadata != null)
@@ -74,7 +74,7 @@ namespace Tk.Nuget
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
 
-            var entries = await GetMetadataAsync(packageId, sourceUrl, cancellation);
+            var entries = await GetMetadataAsync(packageId, sourceUrl, cancellation, true);
             var metadata = entries.FirstOrDefault(x => x.Identity.Version.ToString() == version);
 
             if (metadata != null)
@@ -84,7 +84,20 @@ namespace Tk.Nuget
             return null;
         }
 
-        private static async Task<IList<IPackageSearchMetadata>> GetMetadataAsync(string packageId, string? sourceUrl, CancellationToken cancellation)
+        /// <inheritdoc/>
+        public async Task<IList<PackageMetadata>> GetAllMetadataAsync(string packageId, bool includePrerelease, CancellationToken cancellation = default, string? sourceUrl = null)
+        {
+            packageId.ArgNotNull(nameof(packageId));
+            packageId.ArgNotEmpty(nameof(packageId));
+
+            var entries = await GetMetadataAsync(packageId, sourceUrl, cancellation, includePrerelease);
+
+            var result = (entries ?? []).Select(x => x.ToPackageMetadata()).ToList();
+
+            return await Task.WhenAll(result);
+        }
+
+        private static async Task<IList<IPackageSearchMetadata>> GetMetadataAsync(string packageId, string? sourceUrl, CancellationToken cancellation, bool includePrerelease)
         {
             sourceUrl ??= NuGetConstants.V3FeedUrl;
             var logger = new NuGet.Common.NullLogger();
@@ -93,7 +106,7 @@ namespace Tk.Nuget
 
             using var cache = new SourceCacheContext();
 
-            return (await mdr.GetMetadataAsync(packageId, false, false, cache, logger, cancellation)).ToList();
+            return (await mdr.GetMetadataAsync(packageId, includePrerelease, false, cache, logger, cancellation)).ToList();
         }
     }
 }

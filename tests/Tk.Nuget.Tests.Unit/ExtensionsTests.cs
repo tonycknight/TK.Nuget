@@ -12,6 +12,7 @@ namespace Tk.Nuget.Tests.Unit
             var result = await value.ToPackageMetadata();
 
             result.Id.ShouldBe(value.Identity!.Id);
+            result.Version.ShouldBe(value.Identity!.Version.ToNormalizedString());
             result.Authors.ShouldBe(value.Authors);
             result.Description.ShouldBe(value.Description);
             result.DownloadCount.ShouldBe(value.DownloadCount);
