@@ -106,7 +106,9 @@ namespace Tk.Nuget
 
             using var cache = new SourceCacheContext();
 
-            return (await mdr.GetMetadataAsync(packageId, includePrerelease, false, cache, logger, cancellation)).ToList();
+            var results = (await mdr.GetMetadataAsync(packageId, includePrerelease, false, cache, logger, cancellation));
+
+            return results.OrderByDescending(x => x.Identity.Version).ToList();
         }
     }
 }
