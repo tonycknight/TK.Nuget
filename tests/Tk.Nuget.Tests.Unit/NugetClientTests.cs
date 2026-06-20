@@ -2,9 +2,10 @@ using Shouldly;
 
 namespace Tk.Nuget.Tests.Unit
 {
+    [Collection(nameof(NugetClientTests))]
     public class NugetClientTests
     {
-        private readonly string _tempDir = Path.Combine(Path.GetTempPath(), "TkNugetTests"); // TODO: as this is running in a tests directory...
+        private readonly string _tempDir = Path.Combine(Path.GetTempPath(), "TkNugetTests");
 
         public NugetClientTests()
         {
