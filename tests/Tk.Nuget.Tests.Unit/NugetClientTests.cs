@@ -4,6 +4,35 @@ namespace Tk.Nuget.Tests.Unit
 {
     public class NugetClientTests
     {
+        private readonly string _tempDir = Path.Combine(Path.GetTempPath(), "TkNugetTests"); // TODO: as this is running in a tests directory...
+
+        public NugetClientTests()
+        {
+            // Clean up test directory before tests
+            if (Directory.Exists(_tempDir))
+            {
+                Directory.Delete(_tempDir, true);
+            }
+            Directory.CreateDirectory(_tempDir);
+        }
+
+        private string GetTestFilePath(string filename)
+        {
+            return Path.Combine(_tempDir, filename);
+        }
+
+        ~NugetClientTests()
+        {
+            // Clean up test directory after tests
+            try
+            {
+                if (Directory.Exists(_tempDir))
+                {
+                    Directory.Delete(_tempDir, true);
+                }
+            }
+            catch { }
+        }
         [Fact]
         public void GetLatestNugetVersionAsync_NullPackageId_ExceptionThrown()
         {
@@ -33,7 +62,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var vsn = await c.GetLatestNugetVersionAsync(id, false, CancellationToken.None);
+            var vsn = await c.GetLatestNugetVersionAsync(id, false, TestContext.Current.CancellationToken);
 
             // We've no control over version numbers, so we'll just assert that a version string is returned.
             var v = Version.Parse(vsn!);
@@ -46,7 +75,7 @@ namespace Tk.Nuget.Tests.Unit
             var id = Guid.NewGuid().ToString();
             var c = new NugetClient();
 
-            var vsn = await c.GetLatestNugetVersionAsync(id, false, CancellationToken.None);
+            var vsn = await c.GetLatestNugetVersionAsync(id, false, TestContext.Current.CancellationToken);
 
             vsn.ShouldBeNull();
         }
@@ -68,7 +97,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false, CancellationToken.None);
+            var vsn = await c.GetUpgradeVersionAsync(id, currentVsn, false, TestContext.Current.CancellationToken);
 
             if (upgradeExpected)
             {
@@ -89,7 +118,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetLatestMetadataAsync(id, CancellationToken.None);
+            var meta = await c.GetLatestMetadataAsync(id, TestContext.Current.CancellationToken);
 
             meta.ShouldNotBeNull();
             meta.Id.ShouldBe(id);
@@ -106,7 +135,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetLatestMetadataAsync(id, CancellationToken.None);
+            var meta = await c.GetLatestMetadataAsync(id, TestContext.Current.CancellationToken);
 
             meta.ShouldBeNull();
         }
@@ -135,7 +164,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
+            var meta = await c.GetMetadataAsync(id, version, TestContext.Current.CancellationToken);
 
             meta.ShouldNotBeNull();
             meta.Id.ShouldBe(id);
@@ -154,7 +183,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
+            var meta = await c.GetMetadataAsync(id, version, TestContext.Current.CancellationToken);
 
             meta.ShouldNotBeNull();
             meta.Deprecation.ShouldNotBeNull();
@@ -169,7 +198,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
+            var meta = await c.GetMetadataAsync(id, version, TestContext.Current.CancellationToken);
 
             meta.ShouldNotBeNull();
             meta.Vulnerabilities.ShouldNotBeEmpty();
@@ -182,7 +211,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var meta = await c.GetMetadataAsync(id, version, CancellationToken.None);
+            var meta = await c.GetMetadataAsync(id, version, TestContext.Current.CancellationToken);
 
             meta.ShouldBeNull();
         }
@@ -209,7 +238,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var entries = await c.GetAllMetadataAsync(id, true, CancellationToken.None);
+            var entries = await c.GetAllMetadataAsync(id, true, TestContext.Current.CancellationToken);
 
             entries.ShouldNotBeNull();
             entries.ShouldNotBeEmpty();
@@ -228,7 +257,7 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var entries = await c.GetAllMetadataAsync(id, false, CancellationToken.None);
+            var entries = await c.GetAllMetadataAsync(id, false, TestContext.Current.CancellationToken);
 
             entries.ShouldNotBeNull();
             entries.ShouldNotBeEmpty();
@@ -243,10 +272,132 @@ namespace Tk.Nuget.Tests.Unit
         {
             var c = new NugetClient();
 
-            var entries = await c.GetAllMetadataAsync(id, true, CancellationToken.None);
+            var entries = await c.GetAllMetadataAsync(id, true, TestContext.Current.CancellationToken);
 
             entries.ShouldNotBeNull();
             entries.ShouldBeEmpty();
+        }
+
+        [Theory]
+        [InlineData("Newtonsoft.Json", "13.0.3")]
+        [InlineData("Semver", "3.0.0")]
+        public async Task DownloadPackageAsync_KnownPackageVersion_FileDownloaded(string id, string version)
+        {
+            var c = new NugetClient();
+            var targetFile = GetTestFilePath($"{id}-{version}.nupkg");
+
+            await c.DownloadPackageAsync(id, version, targetFile, false, TestContext.Current.CancellationToken);
+
+            File.Exists(targetFile).ShouldBeTrue();
+            new FileInfo(targetFile).Length.ShouldBeGreaterThan(0);
+        }
+
+        [Theory]
+        [InlineData("Newtonsoft.Json", "13.0.3")]
+        [InlineData("Semver", "3.0.0")]
+        public async Task DownloadPackageAsync_KnownPackageVersionDecompress_DirectoryExtracted(string id, string version)
+        {
+            var c = new NugetClient();
+            var targetFile = GetTestFilePath($"{id}-{version}-decompress.nupkg");
+            var expectedExtractDir = Path.Combine(Path.GetDirectoryName(targetFile) ?? ".", Path.GetFileNameWithoutExtension(targetFile));
+
+            await c.DownloadPackageAsync(id, version, targetFile, true, TestContext.Current.CancellationToken);
+
+            File.Exists(targetFile).ShouldBeTrue();
+            Directory.Exists(expectedExtractDir).ShouldBeTrue();
+            Directory.EnumerateFiles(expectedExtractDir).Any().ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task DownloadPackageAsync_UnknownPackage_ExceptionThrown()
+        {
+            var c = new NugetClient();
+            var targetFile = GetTestFilePath("unknown-package.nupkg");
+
+            Func<Task> download = async () => await c.DownloadPackageAsync("UnknownPackage" + Guid.NewGuid(), "1.0.0", targetFile, false, TestContext.Current.CancellationToken);
+
+            await download.ShouldThrowAsync<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task DownloadPackageAsync_UnknownVersion_ExceptionThrown()
+        {
+            var c = new NugetClient();
+            var targetFile = GetTestFilePath("unknown-version.nupkg");
+
+            Func<Task> download = async () => await c.DownloadPackageAsync("Newtonsoft.Json", "999.999.999", targetFile, false, TestContext.Current.CancellationToken);
+
+            await download.ShouldThrowAsync<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void DownloadPackageAsync_NullPackageId_ExceptionThrown()
+        {
+            var c = new NugetClient();
+            var targetFile = GetTestFilePath("test.nupkg");
+
+            var func = () => c.DownloadPackageAsync(null!, "1.0.0", targetFile, false);
+
+            func.ShouldThrowAsync<ArgumentNullException>();
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void DownloadPackageAsync_EmptyPackageId_ExceptionThrown(string id)
+        {
+            var c = new NugetClient();
+            var targetFile = GetTestFilePath("test.nupkg");
+
+            var func = () => c.DownloadPackageAsync(id, "1.0.0", targetFile, false);
+
+            func.ShouldThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void DownloadPackageAsync_NullVersion_ExceptionThrown()
+        {
+            var c = new NugetClient();
+            var targetFile = GetTestFilePath("test.nupkg");
+
+            var func = () => c.DownloadPackageAsync("Newtonsoft.Json", null!, targetFile, false);
+
+            func.ShouldThrowAsync<ArgumentNullException>();
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void DownloadPackageAsync_EmptyVersion_ExceptionThrown(string version)
+        {
+            var c = new NugetClient();
+            var targetFile = GetTestFilePath("test.nupkg");
+
+            var func = () => c.DownloadPackageAsync("Newtonsoft.Json", version, targetFile, false);
+
+            func.ShouldThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void DownloadPackageAsync_NullTargetPath_ExceptionThrown()
+        {
+            var c = new NugetClient();
+
+            var func = () => c.DownloadPackageAsync("Newtonsoft.Json", "1.0.0", null!, false);
+
+            func.ShouldThrowAsync<ArgumentNullException>();
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void DownloadPackageAsync_EmptyTargetPath_ExceptionThrown(string path)
+        {
+            var c = new NugetClient();
+
+            var func = () => c.DownloadPackageAsync("Newtonsoft.Json", "1.0.0", path, false);
+
+            func.ShouldThrowAsync<ArgumentNullException>();
         }
     }
 }

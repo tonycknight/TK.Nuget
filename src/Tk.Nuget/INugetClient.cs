@@ -49,5 +49,15 @@
         /// <param name="sourceUrl">The repo source URL for private package repositories. If null, https://api.nuget.org/v3/index.json is assumed,</param>
         /// <returns>Package metadata entries if the package exists, or empty if the package does not exist.</returns>
         Task<IList<PackageMetadata>> GetAllMetadataAsync(string packageId, bool includePrerelease, CancellationToken cancellation = default, string? sourceUrl = null);
+
+        /// <summary>
+        /// Downloads a Nuget package to a specified path.
+        /// </summary>
+        /// <param name="packageId">The package ID.</param>
+        /// <param name="version">The version to download.</param>
+        /// <param name="targetPath">The path to download the package to.</param>
+        /// <param name="sourceUrl">The repo source URL for private package repositories. If null, https://api.nuget.org/v3/index.json is assumed,</param>
+        /// <returns>True if the package was downloaded successfully, false otherwise.</returns>
+        Task DownloadPackageAsync(string packageId, string version, string targetPath, bool decompress, CancellationToken cancellation = default, string? sourceUrl = null);
     }
 }

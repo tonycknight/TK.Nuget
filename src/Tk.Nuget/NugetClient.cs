@@ -1,6 +1,8 @@
-﻿using NuGet.Configuration;
+﻿using System.IO.Compression;
+using NuGet.Configuration;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
+using NuGet.Versioning;
 using Semver;
 
 namespace Tk.Nuget
@@ -97,12 +99,99 @@ namespace Tk.Nuget
             return await Task.WhenAll(result);
         }
 
+        /// <inheritdoc/>
+        public async Task DownloadPackageAsync(string packageId, string version, string targetPath, bool decompress, CancellationToken cancellation = default, string? sourceUrl = null)
+        {
+            packageId.ArgNotNull(nameof(packageId));
+            packageId.ArgNotEmpty(nameof(packageId));
+            version.ArgNotNull(nameof(version));
+            version.ArgNotEmpty(nameof(version));
+            targetPath.ArgNotNull(nameof(targetPath));
+            targetPath.ArgNotEmpty(nameof(targetPath));
+
+            try
+            {
+                sourceUrl ??= NuGetConstants.V3FeedUrl;
+                var logger = new NuGet.Common.NullLogger();
+                var sourceRepository = Repository.Factory.GetCoreV3(new PackageSource(sourceUrl));
+
+                using var cache = new SourceCacheContext();
+                
+                // Get FindPackageByIdResource to verify package version exists
+                var findResource = await sourceRepository.GetResourceAsync<FindPackageByIdResource>(cancellation);
+                var allVersions = await findResource.GetAllVersionsAsync(packageId, cache, logger, cancellation);
+                var nugetVersion = NuGetVersion.Parse(version);
+
+                if (!allVersions.Contains(nugetVersion))
+                {
+                    throw new InvalidOperationException($"Package '{packageId}' version '{version}' not found.");
+                }
+
+                // Create target directory if it doesn't exist
+                // TODO: what if targetDir is not rooted?
+                var targetDir = Path.GetDirectoryName(targetPath);
+                if (!string.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir))
+                {
+                    Directory.CreateDirectory(targetDir);
+                }
+
+                // Download the package from the content repository
+                // Standard NuGet package download URL format
+                // TODO: what if sourceUrl is not empty?
+                var nugetOrgUrl = "https://api.nuget.org/v3-flatcontainer";
+                var packageUrl = $"{nugetOrgUrl}/{packageId.ToLowerInvariant()}/{nugetVersion.ToNormalizedString()}/{packageId.ToLowerInvariant()}.{nugetVersion.ToNormalizedString()}.nupkg";
+
+                using (var client = new System.Net.Http.HttpClient())
+                {
+                    using (var response = await client.GetAsync(packageUrl, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellation))
+                    {
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            throw new InvalidOperationException($"Package '{packageId}' version '{version}' could not be downloaded.");
+                        }
+
+                        using (var contentStream = await response.Content.ReadAsStreamAsync())
+                        {
+                            using (var fileStream = File.Create(targetPath))
+                            {
+                                await contentStream.CopyToAsync(fileStream, cancellation);
+                            }
+                        }
+                    }
+                }
+
+                // Decompress if requested
+                if (decompress)
+                {
+                    var extractPath = Path.Combine(
+                        Path.GetDirectoryName(targetPath) ?? ".",
+                        Path.GetFileNameWithoutExtension(targetPath)
+                    );
+
+                    if (Directory.Exists(extractPath))
+                    {
+                        Directory.Delete(extractPath, true);
+                    }
+
+                    ZipFile.ExtractToDirectory(targetPath, extractPath);
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to download package '{packageId}' version '{version}'.", ex);
+            }
+        }
+
         private static async Task<IList<IPackageSearchMetadata>> GetMetadataAsync(string packageId, string? sourceUrl, CancellationToken cancellation, bool includePrerelease)
         {
             sourceUrl ??= NuGetConstants.V3FeedUrl;
             var logger = new NuGet.Common.NullLogger();
             var sourceRepository = Repository.Factory.GetCoreV3(new PackageSource(sourceUrl));
-            var mdr = await sourceRepository.GetResourceAsync<PackageMetadataResource>();
+            var mdr = await sourceRepository.GetResourceAsync<PackageMetadataResource>(cancellation);
 
             using var cache = new SourceCacheContext();
 
