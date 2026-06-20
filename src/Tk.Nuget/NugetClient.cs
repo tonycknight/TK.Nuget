@@ -58,7 +58,7 @@ namespace Tk.Nuget
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
 
-            var entries = await GetMetadataAsync(packageId, sourceUrl, cancellation, false);
+            var entries = await new MetadataReader(packageId, sourceUrl).GetMetadataAsync(false, cancellation);
             var metadata = entries.OrderByDescending(x => x.Identity.Version).FirstOrDefault();
 
             if (metadata != null)
@@ -74,7 +74,7 @@ namespace Tk.Nuget
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
 
-            var entries = await GetMetadataAsync(packageId, sourceUrl, cancellation, true);
+            var entries = await new MetadataReader(packageId, sourceUrl).GetMetadataAsync(true, cancellation);
             var metadata = entries.FirstOrDefault(x => x.Identity.Version.ToString() == version);
 
             if (metadata != null)
@@ -90,7 +90,7 @@ namespace Tk.Nuget
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
 
-            var entries = await GetMetadataAsync(packageId, sourceUrl, cancellation, includePrerelease);
+            var entries = await new MetadataReader(packageId, sourceUrl).GetMetadataAsync(includePrerelease, cancellation);
 
             var result = (entries ?? []).Select(x => x.ToPackageMetadata()).ToList();
 
@@ -108,20 +108,6 @@ namespace Tk.Nuget
             targetPath.ArgNotEmpty(nameof(targetPath));
 
             return await new NugetPackageDownloader().DownloadPackageAsync(packageId, version, targetPath, decompress, cancellation);
-        }
-        
-        private static async Task<IList<IPackageSearchMetadata>> GetMetadataAsync(string packageId, string? sourceUrl, CancellationToken cancellation, bool includePrerelease)
-        {
-            sourceUrl ??= NuGetConstants.V3FeedUrl;
-            var logger = new NuGet.Common.NullLogger();
-            var sourceRepository = Repository.Factory.GetCoreV3(new PackageSource(sourceUrl));
-            var mdr = await sourceRepository.GetResourceAsync<PackageMetadataResource>(cancellation);
-
-            using var cache = new SourceCacheContext();
-
-            var results = (await mdr.GetMetadataAsync(packageId, includePrerelease, false, cache, logger, cancellation));
-
-            return results.OrderByDescending(x => x.Identity.Version).ToList();
-        }
+        }        
     }
 }
