@@ -111,21 +111,7 @@ namespace Tk.Nuget
 
             try
             {
-                var sourceUrl = NuGetConstants.V3FeedUrl;
-                var logger = new NuGet.Common.NullLogger();
-                var sourceRepository = Repository.Factory.GetCoreV3(new PackageSource(sourceUrl));
-
-                using var cache = new SourceCacheContext();
-
-                // Get FindPackageByIdResource to verify package version exists
-                var findResource = await sourceRepository.GetResourceAsync<FindPackageByIdResource>(cancellation);
-                var allVersions = await findResource.GetAllVersionsAsync(packageId, cache, logger, cancellation);
-                var nugetVersion = NuGetVersion.Parse(version);
-
-                if (!allVersions.Contains(nugetVersion))
-                {
-                    throw new InvalidOperationException($"Package '{packageId}' version '{version}' not found in {sourceUrl}.");
-                }
+                var nugetVersion = await GetVerifiedNugetVersionAsync(packageId, version, cancellation);
 
                 // Create target directory if it doesn't exist
                 var targetDir = Path.GetDirectoryName(targetPath);
@@ -151,6 +137,27 @@ namespace Tk.Nuget
             {
                 throw new InvalidOperationException($"Failed to download package '{packageId}' version '{version}'.", ex);
             }
+        }
+
+        private static async Task<NuGetVersion> GetVerifiedNugetVersionAsync(string packageId, string version, CancellationToken cancellation)
+        {
+            var sourceUrl = NuGetConstants.V3FeedUrl;
+            var logger = new NuGet.Common.NullLogger();
+            var sourceRepository = Repository.Factory.GetCoreV3(new PackageSource(sourceUrl));
+
+            using var cache = new SourceCacheContext();
+
+            // Get FindPackageByIdResource to verify package version exists
+            var findResource = await sourceRepository.GetResourceAsync<FindPackageByIdResource>(cancellation);
+            var allVersions = await findResource.GetAllVersionsAsync(packageId, cache, logger, cancellation);
+            var nugetVersion = NuGetVersion.Parse(version);
+
+            if (!allVersions.Contains(nugetVersion))
+            {
+                throw new InvalidOperationException($"Package '{packageId}' version '{version}' not found in {sourceUrl}.");
+            }
+
+            return nugetVersion;
         }
 
         private static string ExtractPackage(string targetPath)
