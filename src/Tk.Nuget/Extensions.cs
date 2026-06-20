@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 
@@ -7,6 +8,7 @@ namespace Tk.Nuget
     internal static class Extensions
     {
         [ExcludeFromCodeCoverage]
+        [DebuggerStepThrough]
         public static T ArgNotNull<T>(this T value, string paramName) where T : class
         {
             if (ReferenceEquals(null, value))
@@ -17,6 +19,7 @@ namespace Tk.Nuget
         }
 
         [ExcludeFromCodeCoverage]
+        [DebuggerStepThrough]
         public static string ArgNotEmpty(this string value, string paramName)
         {
             if (string.IsNullOrWhiteSpace(value))
