@@ -116,7 +116,7 @@ namespace Tk.Nuget
                 var sourceRepository = Repository.Factory.GetCoreV3(new PackageSource(sourceUrl));
 
                 using var cache = new SourceCacheContext();
-                
+
                 // Get FindPackageByIdResource to verify package version exists
                 var findResource = await sourceRepository.GetResourceAsync<FindPackageByIdResource>(cancellation);
                 var allVersions = await findResource.GetAllVersionsAsync(packageId, cache, logger, cancellation);
@@ -135,45 +135,12 @@ namespace Tk.Nuget
                     Directory.CreateDirectory(targetDir);
                 }
 
-                // Download the package from the content repository
-                // Standard NuGet package download URL format
-                // TODO: what if sourceUrl is not empty?
-                var nugetOrgUrl = "https://api.nuget.org/v3-flatcontainer";
-                var packageUrl = $"{nugetOrgUrl}/{packageId.ToLowerInvariant()}/{nugetVersion.ToNormalizedString()}/{packageId.ToLowerInvariant()}.{nugetVersion.ToNormalizedString()}.nupkg";
-
-                using (var client = new System.Net.Http.HttpClient())
-                {
-                    using (var response = await client.GetAsync(packageUrl, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellation))
-                    {
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            throw new InvalidOperationException($"Package '{packageId}' version '{version}' could not be downloaded.");
-                        }
-
-                        using (var contentStream = await response.Content.ReadAsStreamAsync())
-                        {
-                            using (var fileStream = File.Create(targetPath))
-                            {
-                                await contentStream.CopyToAsync(fileStream, cancellation);
-                            }
-                        }
-                    }
-                }
+                await DownloadPackageAsync(packageId, version, targetPath, nugetVersion, cancellation);
 
                 // Decompress if requested
                 if (decompress)
                 {
-                    var extractPath = Path.Combine(
-                        Path.GetDirectoryName(targetPath) ?? ".",
-                        Path.GetFileNameWithoutExtension(targetPath)
-                    );
-
-                    if (Directory.Exists(extractPath))
-                    {
-                        Directory.Delete(extractPath, true);
-                    }
-
-                    ZipFile.ExtractToDirectory(targetPath, extractPath);
+                    ExtractPackage(targetPath);
                 }
             }
             catch (InvalidOperationException)
@@ -183,6 +150,48 @@ namespace Tk.Nuget
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"Failed to download package '{packageId}' version '{version}'.", ex);
+            }
+        }
+
+        private static void ExtractPackage(string targetPath)
+        {
+            var extractPath = Path.Combine(
+                                    Path.GetDirectoryName(targetPath) ?? ".",
+                                    Path.GetFileNameWithoutExtension(targetPath)
+                                );
+
+            if (Directory.Exists(extractPath))
+            {
+                Directory.Delete(extractPath, true);
+            }
+
+            ZipFile.ExtractToDirectory(targetPath, extractPath);
+        }
+
+        private static async Task DownloadPackageAsync(string packageId, string version, string targetPath, NuGetVersion nugetVersion, CancellationToken cancellation)
+        {
+            // Download the package from the content repository
+            // Standard NuGet package download URL format
+            var nugetOrgUrl = "https://api.nuget.org/v3-flatcontainer";
+            var packageUrl = $"{nugetOrgUrl}/{packageId.ToLowerInvariant()}/{nugetVersion.ToNormalizedString()}/{packageId.ToLowerInvariant()}.{nugetVersion.ToNormalizedString()}.nupkg";
+
+            using (var client = new System.Net.Http.HttpClient())
+            {
+                using (var response = await client.GetAsync(packageUrl, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellation))
+                {
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new InvalidOperationException($"Package '{packageId}' version '{version}' could not be downloaded.");
+                    }
+
+                    using (var contentStream = await response.Content.ReadAsStreamAsync())
+                    {
+                        using (var fileStream = File.Create(targetPath))
+                        {
+                            await contentStream.CopyToAsync(fileStream, cancellation);
+                        }
+                    }
+                }
             }
         }
 
