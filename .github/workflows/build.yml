@@ -9,10 +9,17 @@ permissions: # set permissions to principle of least privilege, codeql requires 
   
 on:
   push:
+    branches: [ "**" ]
+    tags: [ "**" ]
+    paths-ignore:
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/dependabot.yml'
+      - '.github/CODEOWNERS'
+      - '**/*.md'  
+  merge_group:
   workflow_dispatch:
 
 env:
-  build-version-number: 0.2.${{ github.run_number }}
   package-version-number: 0.2.${{ github.run_number }}
 
 jobs:
@@ -58,7 +65,7 @@ jobs:
       - name: dotnet tool restore
         run: dotnet tool restore
 
-      - name: dotnet restore
+      - name: App restore
         run: dotnet restore
               
       - name: Run tests
@@ -117,34 +124,46 @@ jobs:
       - name: Restore tools
         run: dotnet tool restore
               
-      - name: Restore solutiom
+      - name: App restore
         run: dotnet restore
 
-      - name: Set package version
-        if: github.ref != 'refs/heads/main' 
-        run: |
-          echo "package-version-number=${{ env.package-version-number }}-preview" >> $GITHUB_ENV
-
       - name: Package
-        run: dotnet pack -c Release -o ./package/ -p:PackageVersion=${{ env.package-version-number }}
+        run: dotnet pack -c Release -o ./package/ -p:PackageVersion=${{ env.package-version-number }} -p:Version=${{ env.package-version-number }}-preview /p:ContinuousIntegrationBuild=true
 
-      - name: Push package to Nuget
-        if: github.event_name == 'push' && github.actor != 'dependabot[bot]'
-        run: dotnet nuget push "package/*.nupkg"  --api-key ${{ secrets.NUGET_PAT }} --source "nuget.org"
-
-  gh-release:
-    name: Github release
-    runs-on: ubuntu-latest
-    needs: [ package ]    
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:    
-      - uses: actions/checkout@v7
-
-      - name: Create Release
-        uses: ncipollo/release-action@v1
+      - name: Archive package
+        uses: actions/upload-artifact@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: v${{ env.build-version-number }}
-          prerelease: false
-          generateReleaseNotes: true
+          name: tk.nuget-package
+          path: ./package/*.nupkg
+
+  nuget-release:
+    name: Push to Nuget
+    runs-on: ubuntu-latest
+    needs: [ package ]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+
+      - name: Determine version
+        run: echo "package-version-number=$(git describe --tags --dirty)" >> $GITHUB_ENV
+
+      - name: Report version
+        run: echo "Building package ${{ env.package-version-number }}" >> $GITHUB_STEP_SUMMARY
+                  
+      - name: Tool restore
+        run: dotnet tool restore
+      
+      - name: App restore
+        run: dotnet restore
+        
+      - name: Build package 
+        run: dotnet pack -c Release -o ./package/ -p:PackageVersion=${{ env.package-version-number }} -p:Version=${{ env.package-version-number }} /p:ContinuousIntegrationBuild=true
+
+      - name: Push nuget package
+        run: dotnet nuget push "package/*.nupkg"  --api-key ${{ secrets.NUGET_PAT }} --source "nuget.org"
