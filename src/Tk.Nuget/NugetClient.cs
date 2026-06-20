@@ -108,6 +108,6 @@ namespace Tk.Nuget
             targetPath.ArgNotEmpty(nameof(targetPath));
 
             return await new NugetPackageDownloader().DownloadPackageAsync(packageId, version, targetPath, decompress, cancellation);
-        }        
+        }
     }
 }
