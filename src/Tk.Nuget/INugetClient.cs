@@ -56,8 +56,7 @@
         /// <param name="packageId">The package ID.</param>
         /// <param name="version">The version to download.</param>
         /// <param name="targetPath">The path to download the package to.</param>
-        /// <param name="sourceUrl">The repo source URL for private package repositories. If null, https://api.nuget.org/v3/index.json is assumed,</param>
         /// <returns>True if the package was downloaded successfully, false otherwise.</returns>
-        Task DownloadPackageAsync(string packageId, string version, string targetPath, bool decompress, CancellationToken cancellation = default, string? sourceUrl = null);
+        Task DownloadNugetPackageAsync(string packageId, string version, string targetPath, bool decompress, CancellationToken cancellation = default);
     }
 }

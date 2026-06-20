@@ -100,7 +100,7 @@ namespace Tk.Nuget
         }
 
         /// <inheritdoc/>
-        public async Task DownloadPackageAsync(string packageId, string version, string targetPath, bool decompress, CancellationToken cancellation = default, string? sourceUrl = null)
+        public async Task DownloadNugetPackageAsync(string packageId, string version, string targetPath, bool decompress, CancellationToken cancellation = default)
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
@@ -111,7 +111,7 @@ namespace Tk.Nuget
 
             try
             {
-                sourceUrl ??= NuGetConstants.V3FeedUrl;
+                var sourceUrl = NuGetConstants.V3FeedUrl;
                 var logger = new NuGet.Common.NullLogger();
                 var sourceRepository = Repository.Factory.GetCoreV3(new PackageSource(sourceUrl));
 
@@ -124,7 +124,7 @@ namespace Tk.Nuget
 
                 if (!allVersions.Contains(nugetVersion))
                 {
-                    throw new InvalidOperationException($"Package '{packageId}' version '{version}' not found.");
+                    throw new InvalidOperationException($"Package '{packageId}' version '{version}' not found in {sourceUrl}.");
                 }
 
                 // Create target directory if it doesn't exist
