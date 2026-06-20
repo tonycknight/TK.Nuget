@@ -286,10 +286,37 @@ namespace Tk.Nuget.Tests.Unit
             var c = new NugetClient();
             var targetFile = GetTestFilePath($"{id}-{version}.nupkg");
 
-            await c.DownloadNugetPackageAsync(id, version, targetFile, false, TestContext.Current.CancellationToken);
+            var downloadedPath = await c.DownloadNugetPackageAsync(id, version, targetFile, false, TestContext.Current.CancellationToken);
 
-            File.Exists(targetFile).ShouldBeTrue();
-            new FileInfo(targetFile).Length.ShouldBeGreaterThan(0);
+            Path.IsPathRooted(downloadedPath).ShouldBeTrue();
+            File.Exists(downloadedPath).ShouldBeTrue();
+            new FileInfo(downloadedPath).Length.ShouldBeGreaterThan(0);
+        }
+
+        [Theory]
+        [InlineData("Newtonsoft.Json", "13.0.3", false)]
+        [InlineData("Semver", "3.0.0", false)]
+        [InlineData("Newtonsoft.Json", "13.0.3", true)]
+        [InlineData("Semver", "3.0.0", true)]
+        public async Task DownloadNugetPackageAsync_KnownPackageVersion_UnrootedPath_FileDownloaded(string id, string version, bool decompress)
+        {
+            var c = new NugetClient();
+            var targetFile = $"{id}-{version}.nupkg";
+
+            var path = await c.DownloadNugetPackageAsync(id, version, targetFile, decompress, TestContext.Current.CancellationToken);
+
+            Path.IsPathRooted(path).ShouldBeTrue();
+            if (!decompress)
+            {
+                File.Exists(path).ShouldBeTrue();
+                new FileInfo(path).Length.ShouldBeGreaterThan(0);
+            }
+            else
+            {
+                Directory.Exists(path).ShouldBeTrue();
+                Directory.Exists(path).ShouldBeTrue();
+                Directory.EnumerateFiles(path).Any().ShouldBeTrue();
+            }
         }
 
         [Theory]
@@ -301,11 +328,12 @@ namespace Tk.Nuget.Tests.Unit
             var targetFile = GetTestFilePath($"{id}-{version}-decompress.nupkg");
             var expectedExtractDir = Path.Combine(Path.GetDirectoryName(targetFile) ?? ".", Path.GetFileNameWithoutExtension(targetFile));
 
-            await c.DownloadNugetPackageAsync(id, version, targetFile, true, TestContext.Current.CancellationToken);
+            var downloadedPath = await c.DownloadNugetPackageAsync(id, version, targetFile, true, TestContext.Current.CancellationToken);
 
-            File.Exists(targetFile).ShouldBeTrue();
-            Directory.Exists(expectedExtractDir).ShouldBeTrue();
-            Directory.EnumerateFiles(expectedExtractDir).Any().ShouldBeTrue();
+            Path.IsPathRooted(downloadedPath).ShouldBeTrue();
+            Directory.Exists(downloadedPath).ShouldBeTrue();
+            Directory.Exists(downloadedPath).ShouldBeTrue();
+            Directory.EnumerateFiles(downloadedPath).Any().ShouldBeTrue();
         }
 
         [Fact]
@@ -314,7 +342,7 @@ namespace Tk.Nuget.Tests.Unit
             var c = new NugetClient();
             var targetFile = GetTestFilePath("unknown-package.nupkg");
 
-            Func<Task> download = async () => await c.DownloadNugetPackageAsync("UnknownPackage" + Guid.NewGuid(), "1.0.0", targetFile, false, TestContext.Current.CancellationToken);
+            Func<Task<string>> download = async () => await c.DownloadNugetPackageAsync("UnknownPackage" + Guid.NewGuid(), "1.0.0", targetFile, false, TestContext.Current.CancellationToken);
 
             await download.ShouldThrowAsync<InvalidOperationException>();
         }
@@ -325,7 +353,7 @@ namespace Tk.Nuget.Tests.Unit
             var c = new NugetClient();
             var targetFile = GetTestFilePath("unknown-version.nupkg");
 
-            Func<Task> download = async () => await c.DownloadNugetPackageAsync("Newtonsoft.Json", "999.999.999", targetFile, false, TestContext.Current.CancellationToken);
+            Func<Task<string>> download = async () => await c.DownloadNugetPackageAsync("Newtonsoft.Json", "999.999.999", targetFile, false, TestContext.Current.CancellationToken);
 
             await download.ShouldThrowAsync<InvalidOperationException>();
         }

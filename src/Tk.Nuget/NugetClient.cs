@@ -100,7 +100,7 @@ namespace Tk.Nuget
         }
 
         /// <inheritdoc/>
-        public async Task DownloadNugetPackageAsync(string packageId, string version, string targetPath, bool decompress, CancellationToken cancellation = default)
+        public async Task<string> DownloadNugetPackageAsync(string packageId, string version, string targetPath, bool decompress, CancellationToken cancellation = default)
         {
             packageId.ArgNotNull(nameof(packageId));
             packageId.ArgNotEmpty(nameof(packageId));
@@ -128,20 +128,20 @@ namespace Tk.Nuget
                 }
 
                 // Create target directory if it doesn't exist
-                // TODO: what if targetDir is not rooted?
                 var targetDir = Path.GetDirectoryName(targetPath);
                 if (!string.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir))
                 {
                     Directory.CreateDirectory(targetDir);
                 }
 
-                await DownloadPackageAsync(packageId, version, targetPath, nugetVersion, cancellation);
+                targetPath = await DownloadPackageAsync(packageId, version, targetPath, nugetVersion, cancellation);
 
                 // Decompress if requested
                 if (decompress)
                 {
-                    ExtractPackage(targetPath);
+                    targetPath = ExtractPackage(targetPath);
                 }
+                return targetPath;
             }
             catch (InvalidOperationException)
             {
@@ -153,7 +153,7 @@ namespace Tk.Nuget
             }
         }
 
-        private static void ExtractPackage(string targetPath)
+        private static string ExtractPackage(string targetPath)
         {
             var extractPath = Path.Combine(
                                     Path.GetDirectoryName(targetPath) ?? ".",
@@ -166,9 +166,12 @@ namespace Tk.Nuget
             }
 
             ZipFile.ExtractToDirectory(targetPath, extractPath);
+            File.Delete(targetPath); // Delete the original .nupkg file after extraction
+
+            return extractPath;
         }
 
-        private static async Task DownloadPackageAsync(string packageId, string version, string targetPath, NuGetVersion nugetVersion, CancellationToken cancellation)
+        private static async Task<string> DownloadPackageAsync(string packageId, string version, string targetPath, NuGetVersion nugetVersion, CancellationToken cancellation)
         {
             // Download the package from the content repository
             // Standard NuGet package download URL format
@@ -189,6 +192,8 @@ namespace Tk.Nuget
                         using (var fileStream = File.Create(targetPath))
                         {
                             await contentStream.CopyToAsync(fileStream, cancellation);
+
+                            return fileStream.Name;
                         }
                     }
                 }
