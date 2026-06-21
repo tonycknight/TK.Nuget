@@ -17,10 +17,7 @@ namespace Tk.Nuget.Tests.Unit
             Directory.CreateDirectory(_tempDir);
         }
 
-        private string GetTestFilePath(string filename)
-        {
-            return Path.Combine(_tempDir, filename);
-        }
+        private string GetTestFilePath(string filename) => Path.Combine(_tempDir, filename);
 
         ~NugetClientTests()
         {
@@ -285,7 +282,7 @@ namespace Tk.Nuget.Tests.Unit
         public async Task DownloadNugetPackageAsync_KnownPackageVersion_FileDownloaded(string id, string version)
         {
             var c = new NugetClient();
-            var targetFile = GetTestFilePath($"{id}-{version}.nupkg");
+            var targetFile = GetTestFilePath("download");
 
             var downloadedPath = await c.DownloadNugetPackageAsync(id, version, targetFile, false, TestContext.Current.CancellationToken);
 
@@ -302,7 +299,7 @@ namespace Tk.Nuget.Tests.Unit
         public async Task DownloadNugetPackageAsync_KnownPackageVersion_UnrootedPath_FileDownloaded(string id, string version, bool decompress)
         {
             var c = new NugetClient();
-            var targetFile = $"{id}-{version}.nupkg";
+            var targetFile = $"download";
 
             var path = await c.DownloadNugetPackageAsync(id, version, targetFile, decompress, TestContext.Current.CancellationToken);
 
@@ -315,7 +312,6 @@ namespace Tk.Nuget.Tests.Unit
             else
             {
                 Directory.Exists(path).ShouldBeTrue();
-                Directory.Exists(path).ShouldBeTrue();
                 Directory.EnumerateFiles(path).Any().ShouldBeTrue();
             }
         }
@@ -323,16 +319,17 @@ namespace Tk.Nuget.Tests.Unit
         [Theory]
         [InlineData("Newtonsoft.Json", "13.0.3")]
         [InlineData("Semver", "3.0.0")]
+        [InlineData("protobuf-net.BuildTools", "3.2.52")]
+        [InlineData("Refit", "11.2.0")]
         public async Task DownloadNugetPackageAsync_KnownPackageVersionDecompress_DirectoryExtracted(string id, string version)
         {
             var c = new NugetClient();
-            var targetFile = GetTestFilePath($"{id}-{version}-decompress.nupkg");
+            var targetFile = GetTestFilePath("download");
             var expectedExtractDir = Path.Combine(Path.GetDirectoryName(targetFile) ?? ".", Path.GetFileNameWithoutExtension(targetFile));
 
             var downloadedPath = await c.DownloadNugetPackageAsync(id, version, targetFile, true, TestContext.Current.CancellationToken);
 
             Path.IsPathRooted(downloadedPath).ShouldBeTrue();
-            Directory.Exists(downloadedPath).ShouldBeTrue();
             Directory.Exists(downloadedPath).ShouldBeTrue();
             Directory.EnumerateFiles(downloadedPath).Any().ShouldBeTrue();
         }
@@ -341,7 +338,7 @@ namespace Tk.Nuget.Tests.Unit
         public async Task DownloadNugetPackageAsync_UnknownPackage_ExceptionThrown()
         {
             var c = new NugetClient();
-            var targetFile = GetTestFilePath("unknown-package.nupkg");
+            var targetFile = GetTestFilePath("download");
 
             Func<Task<string>> download = async () => await c.DownloadNugetPackageAsync("UnknownPackage" + Guid.NewGuid(), "1.0.0", targetFile, false, TestContext.Current.CancellationToken);
 
@@ -352,7 +349,7 @@ namespace Tk.Nuget.Tests.Unit
         public async Task DownloadNugetPackageAsync_UnknownVersion_ExceptionThrown()
         {
             var c = new NugetClient();
-            var targetFile = GetTestFilePath("unknown-version.nupkg");
+            var targetFile = GetTestFilePath("download");
 
             Func<Task<string>> download = async () => await c.DownloadNugetPackageAsync("Newtonsoft.Json", "999.999.999", targetFile, false, TestContext.Current.CancellationToken);
 
@@ -363,7 +360,7 @@ namespace Tk.Nuget.Tests.Unit
         public void DownloadNugetPackageAsync_NullPackageId_ExceptionThrown()
         {
             var c = new NugetClient();
-            var targetFile = GetTestFilePath("test.nupkg");
+            var targetFile = GetTestFilePath("download");
 
             var func = () => c.DownloadNugetPackageAsync(null!, "1.0.0", targetFile, false);
 
@@ -376,7 +373,7 @@ namespace Tk.Nuget.Tests.Unit
         public void DownloadNugetPackageAsync_EmptyPackageId_ExceptionThrown(string id)
         {
             var c = new NugetClient();
-            var targetFile = GetTestFilePath("test.nupkg");
+            var targetFile = GetTestFilePath("download");
 
             var func = () => c.DownloadNugetPackageAsync(id, "1.0.0", targetFile, false);
 
@@ -387,7 +384,7 @@ namespace Tk.Nuget.Tests.Unit
         public void DownloadNugetPackageAsync_NullVersion_ExceptionThrown()
         {
             var c = new NugetClient();
-            var targetFile = GetTestFilePath("test.nupkg");
+            var targetFile = GetTestFilePath("download");
 
             var func = () => c.DownloadNugetPackageAsync("Newtonsoft.Json", null!, targetFile, false);
 
@@ -400,7 +397,7 @@ namespace Tk.Nuget.Tests.Unit
         public void DownloadNugetPackageAsync_EmptyVersion_ExceptionThrown(string version)
         {
             var c = new NugetClient();
-            var targetFile = GetTestFilePath("test.nupkg");
+            var targetFile = GetTestFilePath("download");
 
             var func = () => c.DownloadNugetPackageAsync("Newtonsoft.Json", version, targetFile, false);
 
