@@ -14,14 +14,15 @@ namespace Tk.Nuget
             {
                 var nugetVersion = await GetVerifiedNugetVersionAsync(packageId, version, cancellation);
 
-                // Create target directory if it doesn't exist
-                var targetDir = Path.GetDirectoryName(targetPath);
-                if (!string.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir))
+                // Create target directory if it doesn't exist                
+                if (!string.IsNullOrEmpty(targetPath) && !Directory.Exists(targetPath))
                 {
-                    Directory.CreateDirectory(targetDir);
+                    Directory.CreateDirectory(targetPath);
                 }
 
-                targetPath = await DownloadPackageAsync(packageId, version, targetPath, nugetVersion, cancellation);
+                var targetFilePath = Path.Combine(targetPath, $"{packageId}.{nugetVersion.ToNormalizedString()}.nupkg");
+
+                targetPath = await DownloadPackageAsync(packageId, version, targetFilePath, nugetVersion, cancellation);
 
                 // Decompress if requested
                 if (decompress)
