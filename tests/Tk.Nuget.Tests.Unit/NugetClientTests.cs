@@ -230,7 +230,7 @@ namespace Tk.Nuget.Tests.Unit
         [Theory]
         [InlineData("System.Net.Http", "4.3.0-preview1-24530-04")]
         [InlineData("Xunit", "2.5.2-pre.6")]
-        [InlineData("Newtonsoft.Json", "13.0.5-beta1")]
+        [InlineData("Newtonsoft.Json", "14.0.1-beta1")]
         [InlineData("FSharp.Core", "11.0.100-preview3.26159.112")]
         public async Task GetAllMetadataAsync_KnownPackage_IncludesPrerelease_VersionsReturned(string id, string prereleaseVersion)
         {
