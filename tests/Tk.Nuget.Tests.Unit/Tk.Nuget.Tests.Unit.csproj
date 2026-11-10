@@ -21,7 +21,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>    
     <!-- System.Formats.Asn1 is added to mitigate vulnerability. Nuget.Packaging, when built in .net 8, introduces this old package (standard 2.1 does not) -->
-    <PackageReference Include="xunit.v3" Version="4.0.2" />
+    <PackageReference Include="xunit.v3" Version="4.0.3" />
   </ItemGroup>
 
   <ItemGroup>
